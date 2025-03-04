@@ -9,7 +9,7 @@ const SecurityHeaders = () => {
         style-src 'self' 'unsafe-inline';
         font-src 'self' data:;
         img-src 'self' data:;
-        connect-src 'self' https://eth-mainnet.g.alchemy.com;
+        connect-src 'self' https://eth-mainnet.g.alchemy.com https://api.pinata.cloud https://ipfs.io;
       "/>
     </Helmet>
   );
