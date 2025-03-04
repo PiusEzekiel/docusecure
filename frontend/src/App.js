@@ -92,26 +92,38 @@ function App() {
         setFile(selectedFile);
     
         if (selectedFile) {
-            const reader = new FileReader();
-            reader.readAsArrayBuffer(selectedFile);
+            const formData = new FormData();
+            formData.append("file", selectedFile);
     
-            reader.onloadend = async () => {
-                try {
-                    const fileBuffer = new Uint8Array(reader.result);
-                    const added = await ipfs.add(fileBuffer);
-                    const ipfsHash = added.path;
+            try {
+                const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+                    method: "POST",
+                    headers: {
+                        pinata_api_key: process.env.REACT_APP_PINATA_API_KEY,
+                        pinata_secret_api_key: process.env.REACT_APP_PINATA_API_SECRET,
+                    },
+                    body: formData,
+                });
     
-                    // Set preview URL and store the IPFS hash (CID)
-                    setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}`);
-                    setIpfsHash(ipfsHash);
-                    updateStatus("✅ File uploaded to IPFS successfully!", "success");
-                } catch (error) {
-                    console.error("IPFS Upload Error:", error);
-                    updateStatus("❌ IPFS upload failed. Please try again.", "error");
+                if (!response.ok) {
+                    throw new Error(`Pinata Upload Failed: ${response.statusText}`);
                 }
-            };
+    
+                const result = await response.json();
+                const ipfsHash = result.IpfsHash; // Extract CID from response
+    
+                // Store IPFS hash and preview
+                setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}`);
+                setIpfsHash(ipfsHash);
+                updateStatus("✅ File uploaded to IPFS successfully!", "success");
+    
+            } catch (error) {
+                console.error("IPFS Upload Error:", error);
+                updateStatus(`❌ IPFS upload failed: ${error.message}`, "error");
+            }
         }
     };
+    
     
 
     // Hash document for registration
