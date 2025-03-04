@@ -102,7 +102,8 @@ function App() {
                     method: "POST",
                     headers: {
                         // "Authorization": `Bearer ${process.env.REACT_APP_PINATA_API_KEY}`, // Fix authorization
-                        "Authorization": `Bearer ${JWT}`,
+                        // "Authorization": `Bearer ${JWT}`,
+                        "Authorization": `Bearer ${process.env.REACT_APP_JWT}`,
                     },
                     body: formData,
                 });
@@ -114,7 +115,8 @@ function App() {
                 const result = await response.json();
                 const ipfsHash = result.IpfsHash; // Extract CID from response
     
-                setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}`);
+                setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}` || `https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
+
                 setIpfsHash(ipfsHash);
                 updateStatus("✅ File uploaded to IPFS successfully!", "success");
     
