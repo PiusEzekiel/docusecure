@@ -41,7 +41,6 @@ contract DocumentRegistry {
         return (doc.owner, doc.timestamp, doc.metadata, doc.ipfsHash);
     }
 
-    // ✅ FIXED: Return separate arrays instead of structs
     function getAllDocuments() public view returns (
         string[] memory hashes,
         address[] memory owners,

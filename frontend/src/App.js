@@ -273,40 +273,34 @@ function App() {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
             console.log("Contract instance created, calling getAllDocuments...");
 
-            // Call getAllDocuments and destructure the result
-            const [hashes, owners, timestamps, metadataList, ipfsHashes] = await contract.getAllDocuments();
-            
-            console.log("Raw contract response:", {
-                hashes: Array.from(hashes),
-                owners: Array.from(owners),
-                timestamps: Array.from(timestamps),
-                metadataList: Array.from(metadataList),
-                ipfsHashes: Array.from(ipfsHashes)
-            });
+            // Get raw data
+            const result = await contract.getAllDocuments();
+            console.log("Raw result:", result);
 
-            // Format documents
-            const formattedDocs = hashes.map((hash, index) => {
-                // Ensure timestamp is properly converted from BigInt
-                const timestamp = timestamps[index] ? 
-                    new Date(Number(timestamps[index].toString()) * 1000).toLocaleString() : 
-                    "Unknown";
+            // Ensure we have all arrays
+            if (!result || result.length !== 5) {
+                throw new Error("Invalid response structure from contract");
+            }
 
-                return {
-                    hash: hash || "",
-                    owner: owners[index] || ethers.ZeroAddress,
-                    timestamp,
-                    metadata: metadataList[index] || "No metadata",
-                    fileUrl: ipfsHashes[index] ? 
-                        `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null
-                };
-            });
+            // Destructure with type checking
+            const [hashes, owners, timestamps, metadataList, ipfsHashes] = result;
 
-            // Sort by timestamp (newest first)
-            formattedDocs.sort((a, b) => {
-                const dateA = new Date(a.timestamp).getTime();
-                const dateB = new Date(b.timestamp).getTime();
-                return dateB - dateA;
-            });
+            // Validate arrays
+            if (!Array.isArray(hashes) || !Array.isArray(owners) || 
+                !Array.isArray(timestamps) || !Array.isArray(metadataList) || 
+                !Array.isArray(ipfsHashes)) {
+                throw new Error("Invalid data structure in response");
+            }
+
+            // Format documents with proper type conversion
+            const formattedDocs = hashes.map((hash, index) => ({
+                hash: hash.toString(),
+                owner: owners[index],
+                timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
+                metadata: metadataList[index].toString(),
+                fileUrl: ipfsHashes[index] ? 
+                    `https://ipfs.io/ipfs/${ipfsHashes[index].toString()}` : null
+            }));
 
             console.log("Formatted documents:", formattedDocs);
             setRegisteredDocuments(formattedDocs);
@@ -317,7 +311,7 @@ function App() {
                 message: error.message,
                 code: error.code,
                 data: error.data,
-                stack: error.stack
+                raw: error
             });
             updateStatus("❌ Error fetching documents: " + error.message, "error");
         }
@@ -394,8 +388,32 @@ function App() {
         }
     };
 
+    // Add this near your other utility functions
+    const debugContractSetup = async () => {
+        try {
+            const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
+            
+            // Check contract deployment
+            const code = await readProvider.getCode(contractAddress);
+            console.log("Contract deployed:", code !== "0x");
+            
+            // Check ABI interface
+            console.log("Contract interface:", {
+                functions: Object.keys(contract.interface.functions),
+                events: Object.keys(contract.interface.events)
+            });
+            
+            // Check network
+            const network = await readProvider.getNetwork();
+            console.log("Network:", network);
+            
+        } catch (error) {
+            console.error("Contract setup error:", error);
+        }
+    };
 
     useEffect(() => {
+        debugContractSetup();
         fetchRegisteredDocuments();
     }, []);
 
