@@ -181,7 +181,7 @@ function App() {
         }
 
         // Validate hash format (example: check if it's a 66-character hexadecimal string)
-    const isValidHash = /^0x[a-fA-F0-9]{40}$/.test(hash);
+    const isValidHash = /^[a-fA-F0-9]{40}$/.test(hash);
     if (!isValidHash) {
         updateStatus("❌ Invalid document hash format", "error");
         return;
