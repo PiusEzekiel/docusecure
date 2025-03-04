@@ -222,24 +222,27 @@ function App() {
     // 🔹 Fetch all registered documents for the dashboard
     const fetchRegisteredDocuments = async () => {
         if (!window.ethereum) return;
-
+    
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            const docs = await contract.getAllDocuments(); // // Ensure this function exists in your contract
-
-            // 🔹 Format Data Properly
-            const formattedDocs = docs.map((doc) => ({
-                hash: doc.hash,
-                owner: doc.owner,
-                metadata: doc.metadata,
-                timestamp: new Date(Number(doc.timestamp) * 1000).toLocaleString() // Convert BigInt
-            }));
-
+            const docs = await contract.getAllDocuments(); // Ensure this function exists in your contract
+    
+            // 🔹 Format Data Properly & Sort by Latest First
+            const formattedDocs = docs
+                .map((doc) => ({
+                    hash: doc.hash,
+                    owner: doc.owner,
+                    metadata: doc.metadata,
+                    timestamp: new Date(Number(doc.timestamp) * 1000).toLocaleString(), // Convert BigInt
+                }))
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort by latest first
+    
             setRegisteredDocuments(formattedDocs);
         } catch (error) {
             console.error("Error fetching documents", error);
         }
     };
+    
 
     // 🔹 Transfer document ownership
     const transferOwnership = async () => {
