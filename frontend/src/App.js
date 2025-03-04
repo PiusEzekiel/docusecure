@@ -188,16 +188,23 @@ function App() {
             return;
         }
 
+        if (!metadata) {
+            updateStatus("❌ Metadata missing", "error");
+            return;
+        }
+
         try {
             setLoadingRegister(true);
             updateStatus("🔄 Uploading to blockchain...");
-
+    
             const signer = await getSigner();
             const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
-
+    
+            console.log("Calling registerDocument with:", hash, metadata, ipfsHash);
+    
             const tx = await contractWithSigner.registerDocument(hash, metadata, ipfsHash);
             const receipt = await tx.wait();
-
+    
             if (receipt.status === 1) {
                 updateStatus("✅ Document registered successfully!", "success");
                 setShowInfoBox(true);
@@ -206,7 +213,8 @@ function App() {
                 throw new Error("Transaction failed");
             }
         } catch (error) {
-            updateStatus("❌ Registration failed: " + error.message, "error");
+            console.error("Smart Contract Error:", error);
+            updateStatus("❌ Registration failed: " + (error.reason || error.message), "error");
         } finally {
             setLoadingRegister(false);
         }
