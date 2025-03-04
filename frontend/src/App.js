@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import CryptoJS from "crypto-js";
 import { toast } from "react-toastify";
-import SecurityHeaders from "./SecurityHeaders";
+// import SecurityHeaders from "./SecurityHeaders";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import { FaRegCopy } from "react-icons/fa";
@@ -340,7 +340,7 @@ function App() {
 
     return (
         <div className="app-wrapper">
-            <SecurityHeaders />
+            {/* <SecurityHeaders /> */}
             <header>
                 <h2>DocuSecure DApp</h2>
                 <div className="wallet-section">
