@@ -268,14 +268,16 @@ function App() {
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
             
+            // ✅ Fetch documents as separate arrays
             const [hashes, owners, timestamps, metadataList, ipfsHashes] = await contract.getAllDocuments();
     
+            // ✅ Convert arrays into structured objects
             const formattedDocs = hashes.map((hash, index) => ({
                 hash: hash,
                 owner: owners[index],
                 timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
                 metadata: metadataList[index],
-                fileUrl: ipfsHashes[index] ? `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null // Use IPFS URL
+                fileUrl: ipfsHashes[index] ? `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null
             }));
     
             setRegisteredDocuments(formattedDocs);
