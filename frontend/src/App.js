@@ -22,7 +22,7 @@ const ipfs = create({
     protocol: "https",
     headers: {
         pinata_api_key: process.env.REACT_APP_PINATA_API_KEY,
-        pinata_secret_api_key: process.env.REACT_APP_PINATA_API_SECRET,
+        pinata_secret_api_key: process.env.REACT_APP_PINATA_SECRET_API_KEY,
     }
 });
 
