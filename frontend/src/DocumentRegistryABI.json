@@ -25,6 +25,12 @@
         "internalType": "string",
         "name": "metadata",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "ipfsHash",
+        "type": "string"
       }
     ],
     "name": "DocumentRegistered",
@@ -80,6 +86,11 @@
             "internalType": "string",
             "name": "metadata",
             "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "ipfsHash",
+            "type": "string"
           }
         ],
         "internalType": "struct DocumentRegistry.Document[]",
@@ -100,6 +111,11 @@
       {
         "internalType": "string",
         "name": "_metadata",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_ipfsHash",
         "type": "string"
       }
     ],
@@ -145,6 +161,11 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       },
       {
         "internalType": "string",
