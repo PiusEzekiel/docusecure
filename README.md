@@ -1,150 +1,119 @@
+
 # 📜 Blockchain Digital Asset Protection
 
 ## Ethereum-based Digital Asset Protection using Smart Contracts
 
 ### 🚀 Overview
-This project enables users to register, verify, and transfer ownership of digital assets on the Ethereum blockchain. By leveraging smart contracts, we ensure immutability, security, and transparency for digital asset ownership.
-
-### 📌 Features
-✅ Register Digital Assets – Securely store asset metadata on-chain  
-✅ Verify Authenticity – Check if an asset is valid using cryptographic hashes  
-✅ Transfer Ownership – Allow users to transfer ownership securely  
-✅ Audit and Monitor – View past transactions and asset history  
-✅ User-Friendly UI – Web application for easy interaction  
+DocuSecure is an Ethereum-based DApp that enables users to register, verify, and transfer ownership of digital assets using smart contracts. By leveraging blockchain technology, DocuSecure ensures **immutability, security, and transparency** for digital asset ownership, helping users build trust in their digital transactions.
 
 ---
 
-### 🛠️ Tech Stack
+## 📌 Features
+- ✅ **Register Digital Assets** – Securely store asset metadata on-chain  
+- ✅ **Verify Authenticity** – Use cryptographic hashes to check asset validity  
+- ✅ **Transfer Ownership** – Enable secure and seamless asset transfers  
+- ✅ **Audit and Monitor** – View historical transactions and asset records  
+- ✅ **User-Friendly UI** – A modern web application for easy interaction  
+
+---
+
+## 🛠️ Tech Stack
 
 | Component             | Technology             |
 |-----------------------|------------------------|
-| Blockchain            | Ethereum Mainnet       |
-| Smart Contracts       | Solidity               |
-| Development Framework | Hardhat                |
-| Frontend              | React.js               |
-| Blockchain Interaction| Ethers.js              |
-| Hosting               | Render                 |
-| RPC Provider          | Infura / Alchemy       |
+| **Blockchain**        | Ethereum Mainnet       |
+| **Smart Contracts**   | Solidity               |
+| **Development Tool**  | Hardhat                |
+| **Frontend**          | React.js               |
+| **Blockchain API**    | Ethers.js              |
+| **Hosting**           | Render                 |
+| **RPC Provider**      | Infura / Alchemy       |
 
 ---
 
-### 📌 Live Deployment
+## 📌 Live Deployment
 - **Smart Contract Address:** `0xff64838b280D7Aec98C2B8dcf59767Ee00789D6F`
-- **Frontend Hosted (Optional):** [https://docsecure-1n8k.onrender.com/](https://docsecure-1n8k.onrender.com/)
+- **Frontend Hosted:** [https://docusecure-h8m0.onrender.com](https://docusecure-h8m0.onrender.com/)
 
 ---
 
-### 📌 Prerequisites
-- **Node.js & npm** – Install from [nodejs.org](https://nodejs.org/)
+## 📌 Prerequisites
+Before running this project, ensure you have:
+- **Node.js & npm** – Download from [nodejs.org](https://nodejs.org/)
 - **MetaMask Wallet** – Install from [metamask.io](https://metamask.io/)
-- **Infura or Alchemy API Key** – Create an account at:
+- **Infura or Alchemy API Key** – Sign up at:
   - [Infura](https://infura.io/)
   - [Alchemy](https://www.alchemy.com/)
 
 ---
 
-### 📌 Setup Instructions
+## 📌 Setup Instructions
 
-#### 1️⃣ Clone the Repository
+### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/PiusEzekiel/blockchain_and_apps_assg1.git
-cd blockchain_and_apps_assg1
+git clone https://github.com/PiusEzekiel/docusecure.git
+cd docusecure
 ```
 
-#### 2️⃣ Install Dependencies
+### 2️⃣ Install Dependencies
 ```bash
 npm install
 ```
 
-#### 3️⃣ Create and Configure `.env` File
+### 3️⃣ Create and Configure the .env File
+Create a file named `.env` in the project root:
 ```bash
 touch .env
 ```
-Inside `.env`, add:
-
+Then add the following configuration (replace placeholders with your actual keys):
 ```ini
 MAINNET_RPC_URL=https://mainnet.infura.io/v3/YOUR_INFURA_API_KEY
 PRIVATE_KEY=YOUR_METAMASK_PRIVATE_KEY
-REACT_APP_CONTRACT_ADDRESS=0xff64838b280D7Aec98C2B8dcf59767Ee00789D6F
+REACT_APP_CONTRACT_ADDRESS=[Changed to deployed Contract address]
 ```
 
 ---
 
-### 📌 Deploying Smart Contract
+## 📌 Deploying the Smart Contract
 
-#### 1️⃣ Compile the Contract
+### 1️⃣ Compile the Contract
 ```bash
 npx hardhat compile
 ```
 
-#### 2️⃣ Deploy to Ethereum Mainnet
+### 2️⃣ Deploy to Ethereum Mainnet
 ```bash
 npx hardhat run scripts/deploy.js --network mainnet
 ```
-If successful, it will return:
-
-```css
+If successful, you will see output similar to:
+```bash
 Deploying contract...
 Contract deployed to: xxxxxx
 ```
-**Note:** Replace the old `REACT_APP_CONTRACT_ADDRESS` in `.env` with the new contract address.
+**Note:** Update your `.env` file with the new contract address if needed.
 
 ---
 
-### 📌 Running the Frontend
+## 📌 Running the Frontend
 
-#### 1️⃣ Navigate to DApp directory
+### 1️⃣ Navigate to the Frontend Directory
 ```bash
-cd document-security-dapp
+cd frontend
 ```
 
-#### 2️⃣ Install Dependencies and Build
+### 2️⃣ Install Frontend Dependencies and Build
 ```bash
 npm install
 npm run build
 ```
 
-#### 3️⃣ Start the Server
+### 3️⃣ Start the Frontend Server
 ```bash
-npm run serve
+npm start
 ```
-
-This will launch the DApp at:
+Access the DApp at:
 ```
 http://localhost:3000
 ```
-
----
-
-### 📌 Using the DApp
-
-#### 1️⃣ Register a Document
-- Upload a file → The system generates a hash of the file.
-- Enter metadata (e.g., document type, issuer ID).
-- Click `"Register Document"` → The document is recorded on Ethereum.
-
-#### 2️⃣ Verify a Document
-- Enter the document hash in the verification box.
-- Click `"Verify Document"` → If found, ownership details will be displayed.
-
-#### 3️⃣ Transfer Ownership
-- Enter the document hash.
-- Provide the new owner's Ethereum address.
-- Click `"Transfer Ownership"` → The contract will process the transfer.
-
-#### 4️⃣ View Registered Documents
-- Check all registered digital assets and their details.
-
----
-
-### 📌 Smart Contract Overview
-
-#### 🔹 Functions
-
-| Function                            | Description                                   |
-|-------------------------------------|-----------------------------------------------|
-| `registerDocument(hash, metadata)`  | Registers a digital asset on-chain            |
-| `verifyDocument(hash)`              | Returns the owner & metadata if found         |
-| `transferOwnership(hash, newOwner)` | Transfers document ownership                  |
 
 
