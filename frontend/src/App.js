@@ -55,7 +55,7 @@ function App() {
     };
     const updateStatus = (message, type = "") => {
         // Truncate the message if it's longer than 100 characters
-        const truncatedMessage = message.length > 100 ? message.slice(0, 100) + "..." : message;
+        const truncatedMessage = message.length > 80 ? message.slice(0, 80) + "..." : message;
         
         setStatus(truncatedMessage);
         setStatusType(type);
@@ -179,6 +179,13 @@ function App() {
             updateStatus("❌ Please enter a document hash", "error");
             return;
         }
+
+        // Validate hash format (example: check if it's a 66-character hexadecimal string)
+    const isValidHash = /^0x[a-fA-F0-9]{40}$/.test(hash);
+    if (!isValidHash) {
+        updateStatus("❌ Invalid document hash format", "error");
+        return;
+    }
 
         try {
             setLoadingVerify(true);
