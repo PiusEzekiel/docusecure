@@ -1,0 +1,410 @@
+/* Global Styles */
+html, body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #4b6cb7, #182848);
+  /* background-size: 300% 300%; Larger background for smooth animation */
+  /* animation: backgroundAnimation 25s ease-in-out infinite alternate; Animation */
+  color: white;
+  text-align: center;
+  margin: 0;
+  /* flex: 1; */
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; /* Prevents horizontal scroll */
+}
+
+
+* {
+  box-sizing: border-box; /* Prevents width issues due to padding */
+}
+
+/* Header Styling */
+header {
+  display: flex;
+  justify-content: space-between; /* Push items to opposite ends */
+  align-items: center; /* Align items vertically */
+  width: 100%;
+  max-width: 1000px; /* Prevents overflow */
+  margin: 0 auto; /* Centers the header */ /* Adds space around */
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 20px;
+  padding-bottom: 30px; 
+  background: rgba(0, 0, 0, 0.8); /* Modern semi-transparent black */
+  color: white;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2); /* Soft underline */
+  border-right: 2px solid rgba(255, 255, 255, 0.2); /* Soft underline */
+  border-left: 2px solid rgba(255, 255, 255, 0.2); /* Soft underline */
+  position: fixed; /* Stays at the top */
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  /* left: 0;
+  right: 0; */
+  z-index: 1000; /* Ensures it stays above other content */
+  border-bottom-right-radius: 50px;
+  border-bottom-left-radius: 50px;
+}
+
+/* Adjust Header Title */
+header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  /* text-transform: uppercase; */
+  margin: 0;
+}
+
+/* Wallet Section */
+.wallet-section {
+  /* display: flex; */
+  align-items: center;
+}
+
+/* .status-message {
+  margin-right: 20px;
+} */
+
+/* 🔹 Status Message Styling */
+.status-message {
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 20px;
+  margin: 10px auto;
+  width: 40%;
+  border-radius: 8px;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  /* animation: fadeIn 0.5s ease-in-out; */
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #007bff;
+  box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
+  max-width: 900px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.status-success {
+  /* background-color: rgba(40, 167, 69, 0.9); */
+  color: white;
+  border: 1px solid #007bff;
+  box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
+}
+
+.status-error {
+  background-color: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: 1px solid #dc3545;
+}
+
+/* 🔹 Fade-In Animation */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(-5px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+
+/* Wallet Button */
+.connect-button {
+  background: linear-gradient(135deg, #4a90e2, #007bff);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
+}
+
+.connect-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 12px rgba(74, 144, 226, 0.5);
+}
+
+  /* 📜 App Container */
+  .app-container {
+    width: 90%;
+    max-width: 950px;
+    margin: 130px auto; /* Push content down below header */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  /* 🔹 Tabs Section */
+  .tabs {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 30px;
+    border-radius: 8px;
+  }
+  
+  /* 🏷️ Tab Buttons */
+  .tab-button {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 5px;
+  }
+  
+  .tab-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  .tab-button.active {
+    background: linear-gradient(135deg, #4a90e2, #007bff);
+    font-weight: bold;
+  }
+  
+  /* 🟦 Card Styles */
+  .card {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 900px;
+    transition: 0.3s;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+
+  
+  /* 📝 Input Fields */
+  .input-field,
+  .file-input {
+    width: 95%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 14px;
+    transition: 0.3s;
+  }
+  
+  /* 🎨 Placeholder Styling */
+  .input-field::placeholder,
+  .file-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+  }
+  
+  /* 🎯 Focus Effects */
+  .input-field:focus,
+  .file-input:focus {
+    border-color: #00c6ff;
+    box-shadow: 0px 0px 10px rgba(0, 198, 255, 0.2);
+  }
+
+  /* Action Buttons */
+.action-button {
+  background: linear-gradient(135deg, #4a90e2, #007bff);
+  /* background: linear-gradient(135deg, #28a745, #00c6ff); */
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
+  border: 1px solid #007bff;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.6);
+}
+  
+/* Info Box (Success) */
+.info-box {
+  background: rgba(0, 0, 0, 0.1); /* Modern semi-transparent black */
+  border: 1px solid #007bff;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 15px;
+  font-size: 14px;
+}
+
+/* Fades out after a delay */
+.info-box.hidden {
+  opacity: 0;
+}
+
+/* Info Box (Success) */
+.info-box.success {
+  background-color: rgba(40, 167, 69, 0.15);
+  border: 1px solid #007bff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+/* Info Box (Error) */
+.info-box.error {
+  background-color: rgba(220, 53, 69, 0.15);
+  border: 1px solid #dc3545;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+/* Document List Styling */
+.document-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 500px; /* Prevent excessive height */
+  overflow-y: auto;  /* Enable scrolling if too many documents */
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Adds spacing between list items */
+}
+
+/* Document Items */
+.document-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap; /* Ensures elements wrap properly */
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease-in-out;
+  word-wrap: break-word; /* Ensure long words break properly */
+}
+
+/* .document-item:hover {
+  transform: scale(1.02);
+} */
+
+/* Ensuring proper text formatting */
+.document-item p {
+  font-size: 12px;
+  margin: 4px 0;
+  text-align: left;
+  word-break: break-word; /* Ensures long text wraps */
+}
+
+/* Hash and owner should be on separate lines for better readability */
+.document-item b {
+  /* display: block; */
+  font-size: 12px;
+  color: #ffffff;
+  text-align: left;
+}
+
+  /* 📋 Copy Icon */
+  .copy-icon {
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 18px;
+    color: #4a90e2;
+    
+    transition: transform 0.2s, color 0.2s;
+  }
+  
+  .copy-icon:hover {
+    transform: scale(1.2);
+    color: #007bff;
+  }
+  
+  /* 📌 Footer */
+  .footer {
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+    margin-top: auto;
+  }
+  
+  /* Footer Links */
+  .footer a {
+    color: #4a90e2;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 5px;
+    transition: color 0.3s ease-in-out;
+  }
+  
+  .footer a:hover {
+    color: #fff;
+  }
+  
+  /* 📱 Responsive Design */
+  @media (max-width: 768px) {
+    .app-container {
+      width: 95%;
+      padding: 15px;
+    }
+
+    .header {
+      header {
+        flex-direction: column; /* Stack items vertically */
+        text-align: center;
+        padding: 10px 5px;
+      }
+    }
+  
+    .card {
+      max-width: 100%;
+    }
+  
+    .tabs {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .tab-button {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+  
+    .connect-button,
+    .action-button {
+      width: 100%;
+    }
+  
+    .document-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
