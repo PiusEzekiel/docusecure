@@ -228,6 +228,79 @@ header h2 {
     box-shadow: 0px 0px 10px rgba(0, 198, 255, 0.2);
   }
 
+  /* 📂 File Preview Container */
+.file-preview {
+  margin-top: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  text-align: center;
+  max-width: 280px;
+  box-shadow: 0px 4px 10px rgba(0, 198, 255, 0.3);
+  transition: transform 0.3s ease-in-out;
+}
+
+.file-preview:hover {
+  transform: scale(1.05);
+}
+
+/* 🖼️ Image Preview */
+.file-preview img {
+  width: 100%;
+  height: auto;
+  max-height: 150px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* 📄 Non-Image File Preview */
+.file-preview p {
+  font-size: 12px;
+  color: white;
+  margin-top: 8px;
+  font-weight: bold;
+  word-break: break-word;
+}
+
+/* 📤 Custom File Input */
+.file-input-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.file-input {
+  opacity: 0;
+  width: 100%;
+  height: 40px;
+  position: absolute;
+  left: 0;
+  cursor: pointer;
+}
+
+/* 🎨 Styled Button for File Input */
+.file-input-label {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #4a90e2, #007bff);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.3s ease-in-out;
+  box-shadow: 0px 4px 10px rgba(74, 144, 226, 0.4);
+}
+
+.file-input-label:hover {
+  background: linear-gradient(135deg, #0056b3, #003c80);
+  transform: scale(1.02);
+}
+
+
   /* Action Buttons */
 .action-button {
   background: linear-gradient(135deg, #4a90e2, #007bff);
@@ -284,6 +357,29 @@ header h2 {
   font-size: 14px;
 }
 
+/* 🎯 Styled File Preview in Info Box */
+.info-box .file-preview {
+  margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  display: inline-block;
+  max-width: 200px;
+  box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.3);
+}
+
+.info-box .file-preview img {
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+.info-box .file-preview:hover {
+  transform: scale(1.03);
+  transition: transform 0.3s ease-in-out;
+}
+
+
 /* Document List Styling */
 .document-list {
   list-style: none;
@@ -296,23 +392,41 @@ header h2 {
   gap: 10px; /* Adds spacing between list items */
 }
 
-/* Document Items */
+/* 📝 Registered Document Item */
 .document-item {
   background: rgba(255, 255, 255, 0.1);
   padding: 12px;
   border-radius: 8px;
   display: flex;
-  flex-wrap: wrap; /* Ensures elements wrap properly */
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: transform 0.3s ease-in-out;
-  word-wrap: break-word; /* Ensure long words break properly */
+  word-wrap: break-word;
 }
 
-/* .document-item:hover {
-  transform: scale(1.02);
-} */
+/* 🖼️ File Preview in Dashboard */
+.document-item .file-preview {
+  max-width: 120px;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 5px;
+  box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
+}
+
+.document-item .file-preview img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.document-item .file-preview:hover {
+  transform: scale(1.03);
+  transition: transform 0.3s ease-in-out;
+}
+
 
 /* Ensuring proper text formatting */
 .document-item p {
@@ -391,6 +505,18 @@ header h2 {
     .tabs {
       flex-direction: column;
       align-items: center;
+    }
+
+    .file-preview {
+      max-width: 80%;
+    }
+  
+    .info-box .file-preview {
+      max-width: 100%;
+    }
+  
+    .document-item .file-preview {
+      max-width: 100px;
     }
   
     .tab-button {
