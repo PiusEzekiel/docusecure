@@ -99,7 +99,7 @@ function App() {
                 const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
                     method: "POST",
                     headers: {
-                        "Authorization": `Bearer ${process.env.REACT_APP_PINATA_API_SECRET_KEY}`, // Fix authorization
+                        "Authorization": `Bearer ${process.env.REACT_APP_PINATA_API_KEY}`, // Fix authorization
                     },
                     body: formData,
                 });
