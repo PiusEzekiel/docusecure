@@ -99,8 +99,7 @@ function App() {
                 const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
                     method: "POST",
                     headers: {
-                        pinata_api_key: process.env.REACT_APP_PINATA_API_KEY,
-                        pinata_secret_api_key: process.env.REACT_APP_PINATA_SECRET_API_KEY,
+                        "Authorization": `Bearer ${process.env.REACT_APP_PINATA_API_SECRET_KEY}`, // Fix authorization
                     },
                     body: formData,
                 });
@@ -112,7 +111,6 @@ function App() {
                 const result = await response.json();
                 const ipfsHash = result.IpfsHash; // Extract CID from response
     
-                // Store IPFS hash and preview
                 setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}`);
                 setIpfsHash(ipfsHash);
                 updateStatus("✅ File uploaded to IPFS successfully!", "success");
