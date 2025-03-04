@@ -92,13 +92,13 @@ function App() {
     const handleFileChange = async (event) => {
         const selectedFile = event.target.files[0];
         setFile(selectedFile);
-    
+
         if (selectedFile) {
             const formData = new FormData();
             formData.append("file", selectedFile);
-    
+
             updateStatus("🔄 Uploading file to IPFS...", "info"); // Initial status message
-    
+
             try {
                 const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
                     method: "POST",
@@ -107,26 +107,26 @@ function App() {
                     },
                     body: formData,
                 });
-    
+
                 if (!response.ok) {
                     throw new Error(`Pinata Upload Failed: ${response.statusText}`);
                 }
-    
+
                 const result = await response.json();
                 const ipfsHash = result.IpfsHash; // Extract CID from response
-    
+
                 setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}` || `https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
                 setIpfsHash(ipfsHash);
                 updateStatus("✅ File uploaded to IPFS successfully!", "success");
-    
+
             } catch (error) {
                 console.error("IPFS Upload Error:", error);
                 updateStatus(`❌ IPFS upload failed: ${error.message}`, "error");
             }
         }
     };
-    
-    
+
+
 
     // Hash document for registration
     const hashDocument = async () => {
@@ -194,15 +194,15 @@ function App() {
         try {
             setLoadingRegister(true);
             updateStatus("🔄 Uploading to blockchain...");
-    
+
             const signer = await getSigner();
             const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
-    
+
             console.log("Calling registerDocument with:", hash, metadata, ipfsHash);
-    
+
             const tx = await contractWithSigner.registerDocument(hash, metadata, ipfsHash);
             const receipt = await tx.wait();
-    
+
             if (receipt.status === 1) {
                 updateStatus("✅ Document registered successfully!", "success");
                 setShowInfoBox(true);
@@ -234,23 +234,23 @@ function App() {
         try {
             setLoadingVerify(true);
             updateStatus("🔄 Verifying document...");
-    
+
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
             const [owner, timestamp, metadata, ipfsHash] = await contract.verifyDocument(hash);
-    
+
             if (!owner || owner === ethers.ZeroAddress) {
                 updateStatus("❌ Document not found", "error");
                 setDocumentInfo(null);
                 return;
             }
-    
+
             setDocumentInfo({
                 owner,
                 timestamp: new Date(Number(timestamp) * 1000).toLocaleString(),
                 metadata,
                 fileUrl: ipfsHash ? `https://ipfs.io/ipfs/${ipfsHash}` : null,
             });
-    
+
             updateStatus("✅ Document verified successfully!", "success");
         } catch (error) {
             updateStatus("❌ Verification failed: " + error.message, "error");
@@ -260,33 +260,82 @@ function App() {
         }
     };
 
+
+
     // Fetch all registered documents and sort them with latest first
     const fetchRegisteredDocuments = async () => {
         if (!window.ethereum) return;
-    
+
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-    
-            // ✅ Fetch documents as separate arrays
-            const [hashes, owners, timestamps, metadataList, ipfsHashes] = await contract.getAllDocuments();
-    
-            // ✅ Convert arrays into structured objects
-            const formattedDocs = hashes.map((hash, index) => ({
-                hash,
-                owner: owners[index],
-                timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
-                metadata: metadataList[index],
-                fileUrl: ipfsHashes[index] ? `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null
-            }));
-    
+
+            // Add error handling and logging
+            // Add explicit logging
+        console.log("Calling getAllDocuments...");
+        const result = await contract.getAllDocuments();
+        console.log("Raw result:", result);
+            if (!result) {
+                throw new Error("No data returned from contract");
+            }
+
+            // Destructure with explicit type checking
+            const [hashes, owners, timestamps, metadataList, ipfsHashes] = result;
+
+            // Validate data
+            if (!Array.isArray(hashes) || !Array.isArray(owners) ||
+                !Array.isArray(timestamps) || !Array.isArray(metadataList) ||
+                !Array.isArray(ipfsHashes)) {
+                throw new Error("Invalid data structure returned from contract");
+            }
+
+            // Format documents with additional validation
+            const formattedDocs = hashes.map((hash, index) => {
+                if (index >= owners.length || index >= timestamps.length ||
+                    index >= metadataList.length || index >= ipfsHashes.length) {
+                    throw new Error("Array length mismatch in contract response");
+                }
+
+                return {
+                    hash: hash || "",
+                    owner: owners[index] || ethers.ZeroAddress,
+                    timestamp: timestamps[index] ?
+                        new Date(Number(timestamps[index]) * 1000).toLocaleString() :
+                        "Unknown",
+                    metadata: metadataList[index] || "No metadata",
+                    fileUrl: ipfsHashes[index] ?
+                        `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null
+                };
+            });
+
             setRegisteredDocuments(formattedDocs);
+
         } catch (error) {
             console.error("Error fetching documents:", error);
-            updateStatus("❌ Error fetching documents from the blockchain.", "error");
+            updateStatus("❌ Error fetching documents: " + error.message, "error");
         }
     };
-    
-    
+
+    // Add this validation helper function
+    const validateContractResponse = (data) => {
+        if (!data || typeof data !== 'object') {
+            throw new Error("Invalid contract response");
+        }
+
+        const requiredArrays = ['hashes', 'owners', 'timestamps', 'metadataList', 'ipfsHashes'];
+        for (const key of requiredArrays) {
+            if (!Array.isArray(data[key])) {
+                throw new Error(`Missing or invalid ${key} array in contract response`);
+            }
+        }
+
+        const length = data.hashes.length;
+        if (!requiredArrays.every(key => data[key].length === length)) {
+            throw new Error("Array length mismatch in contract response");
+        }
+
+        return true;
+    };
+
 
     const fetchUserOwnedAssets = async () => {
         if (!window.ethereum) return;

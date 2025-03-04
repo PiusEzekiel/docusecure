@@ -66,36 +66,29 @@
     "name": "getAllDocuments",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "hash",
-            "type": "string"
-          },
-          {
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "metadata",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "ipfsHash",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct DocumentRegistry.Document[]",
-        "name": "",
-        "type": "tuple[]"
+        "internalType": "string[]",
+        "name": "hashes",
+        "type": "string[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "owners",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "timestamps",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "metadataList",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "ipfsHashes",
+        "type": "string[]"
       }
     ],
     "stateMutability": "view",
