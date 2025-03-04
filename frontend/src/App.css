@@ -1,7 +1,7 @@
 /* Global Styles */
 html, body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #4b6cb7, #182848);
+  background: linear-gradient(135deg, #0f1e41, #081734);
   /* background-size: 300% 300%; Larger background for smooth animation */
   /* animation: backgroundAnimation 25s ease-in-out infinite alternate; Animation */
   color: white;
