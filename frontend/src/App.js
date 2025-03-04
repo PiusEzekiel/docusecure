@@ -15,7 +15,17 @@ const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
 const readProvider = new ethers.JsonRpcProvider(process.env.REACT_APP_MAINNET_RPC_URL);
 const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
 // Connect to Infura IPFS (or use your own IPFS node)
-const ipfs = create({ url: "https://ipfs.infura.io:5001/api/v0" });
+
+const ipfs = create({
+    host: "api.pinata.cloud",
+    port: 443,
+    protocol: "https",
+    headers: {
+        pinata_api_key: process.env.REACT_APP_PINATA_API_KEY,
+        pinata_secret_api_key: process.env.REACT_APP_PINATA_API_SECRET,
+    }
+});
+
 
 
 function App() {
@@ -79,31 +89,30 @@ function App() {
     // Handle file selection and create a preview
     const handleFileChange = async (event) => {
         const selectedFile = event.target.files[0];
-        if (!selectedFile) return;
-
         setFile(selectedFile);
-        setStatus("🔄 Uploading to IPFS...");
-
-        try {
+    
+        if (selectedFile) {
             const reader = new FileReader();
+            reader.readAsArrayBuffer(selectedFile);
+    
             reader.onloadend = async () => {
                 try {
                     const fileBuffer = new Uint8Array(reader.result);
                     const added = await ipfs.add(fileBuffer);
                     const ipfsHash = added.path;
-
+    
+                    // Set preview URL and store the IPFS hash (CID)
                     setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}`);
                     setIpfsHash(ipfsHash);
-                    updateStatus("✅ File uploaded to IPFS", "success");
+                    updateStatus("✅ File uploaded to IPFS successfully!", "success");
                 } catch (error) {
-                    updateStatus("❌ IPFS upload failed: " + error.message, "error");
+                    console.error("IPFS Upload Error:", error);
+                    updateStatus("❌ IPFS upload failed. Please try again.", "error");
                 }
             };
-            reader.readAsArrayBuffer(selectedFile);
-        } catch (error) {
-            updateStatus("❌ File reading failed: " + error.message, "error");
         }
     };
+    
 
     // Hash document for registration
     const hashDocument = async () => {
