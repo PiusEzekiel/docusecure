@@ -15,7 +15,9 @@ const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
 const readProvider = new ethers.JsonRpcProvider(process.env.REACT_APP_MAINNET_RPC_URL);
 const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
 
-const JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxNWFjY2M2My04MmMwLTRmZGItYjU5My03MzdkYTlmMDcwZTYiLCJlbWFpbCI6ImUucGl1czFAYWx1c3R1ZGVudC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJGUkExIn0seyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJOWUMxIn1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiN2I1NTc1MTYyNGI5MjljNjVjY2EiLCJzY29wZWRLZXlTZWNyZXQiOiIwZmIzZDBhMmM4YWY1ZDY4NmU5ZDhmYTI4NGQ5M2MyODJjYjRlMTNiZTI1ZWNmYzk3ZWQyMzQyODA1NDM4YjkzIiwiZXhwIjoxNzcyNjMxMTY1fQ.0rYqR8Mj0V04mRO9eSslWm-q6jnBn9oKz0_w5H3-4QE";
+// const JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxNWFjY2M2My04MmMwLTRmZGItYjU5My03MzdkYTlmMDcwZTYiLCJlbWFpbCI6ImUucGl1czFAYWx1c3R1ZGVudC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJGUkExIn0seyJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MSwiaWQiOiJOWUMxIn1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiN2I1NTc1MTYyNGI5MjljNjVjY2EiLCJzY29wZWRLZXlTZWNyZXQiOiIwZmIzZDBhMmM4YWY1ZDY4NmU5ZDhmYTI4NGQ5M2MyODJjYjRlMTNiZTI1ZWNmYzk3ZWQyMzQyODA1NDM4YjkzIiwiZXhwIjoxNzcyNjMxMTY1fQ.0rYqR8Mj0V04mRO9eSslWm-q6jnBn9oKz0_w5H3-4QE";
+
+
 // Connect to Infura IPFS (or use your own IPFS node)
 
 const ipfs = create({
@@ -97,12 +99,12 @@ function App() {
             const formData = new FormData();
             formData.append("file", selectedFile);
     
+            updateStatus("🔄 Uploading file to IPFS...", "info"); // Initial status message
+    
             try {
                 const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
                     method: "POST",
                     headers: {
-                        // "Authorization": `Bearer ${process.env.REACT_APP_PINATA_API_KEY}`, // Fix authorization
-                        // "Authorization": `Bearer ${JWT}`,
                         "Authorization": `Bearer ${process.env.REACT_APP_JWT}`,
                     },
                     body: formData,
@@ -116,7 +118,6 @@ function App() {
                 const ipfsHash = result.IpfsHash; // Extract CID from response
     
                 setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}` || `https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
-
                 setIpfsHash(ipfsHash);
                 updateStatus("✅ File uploaded to IPFS successfully!", "success");
     
