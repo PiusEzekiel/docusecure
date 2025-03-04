@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
 import CryptoJS from "crypto-js";
 import { toast } from "react-toastify";
@@ -263,82 +263,66 @@ function App() {
 
 
     // Fetch all registered documents and sort them with latest first
-const fetchRegisteredDocuments = async () => {
-    if (!window.ethereum) {
-        updateStatus("❌ MetaMask not detected", "error");
-        return;
-    }
-
-    try {
-        const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-        
-        // Add debug logging
-        console.log("Contract instance created, calling getAllDocuments...");
-        
-        // Call the contract method
-        const result = await contract.getAllDocuments();
-        console.log("Raw contract response:", result);
-        
-        // Check if result exists and has the correct structure
-        if (!result || result.length !== 5) {
-            throw new Error(`Invalid response structure. Expected 5 arrays, got ${result?.length}`);
+    const fetchRegisteredDocuments = async () => {
+        if (!window.ethereum) {
+            updateStatus("❌ MetaMask not detected", "error");
+            return;
         }
 
-        // Destructure arrays from result
-        const [hashes, owners, timestamps, metadataList, ipfsHashes] = result;
+        try {
+            const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
+            console.log("Contract instance created, calling getAllDocuments...");
 
-        // Debug logging for arrays
-        console.log("Parsed arrays:", {
-            hashes: [...hashes],
-            owners: [...owners],
-            timestamps: [...timestamps],
-            metadataList: [...metadataList],
-            ipfsHashes: [...ipfsHashes]
-        });
+            // Call getAllDocuments and destructure the result
+            const [hashes, owners, timestamps, metadataList, ipfsHashes] = await contract.getAllDocuments();
+            
+            console.log("Raw contract response:", {
+                hashes: Array.from(hashes),
+                owners: Array.from(owners),
+                timestamps: Array.from(timestamps),
+                metadataList: Array.from(metadataList),
+                ipfsHashes: Array.from(ipfsHashes)
+            });
 
-        // Validate array lengths match
-        const arrayLengths = [
-            hashes.length,
-            owners.length,
-            timestamps.length,
-            metadataList.length,
-            ipfsHashes.length
-        ];
+            // Format documents
+            const formattedDocs = hashes.map((hash, index) => {
+                // Ensure timestamp is properly converted from BigInt
+                const timestamp = timestamps[index] ? 
+                    new Date(Number(timestamps[index].toString()) * 1000).toLocaleString() : 
+                    "Unknown";
 
-        if (!arrayLengths.every(len => len === arrayLengths[0])) {
-            throw new Error("Array length mismatch in contract response");
+                return {
+                    hash: hash || "",
+                    owner: owners[index] || ethers.ZeroAddress,
+                    timestamp,
+                    metadata: metadataList[index] || "No metadata",
+                    fileUrl: ipfsHashes[index] ? 
+                        `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null
+                };
+            });
+
+            // Sort by timestamp (newest first)
+            formattedDocs.sort((a, b) => {
+                const dateA = new Date(a.timestamp).getTime();
+                const dateB = new Date(b.timestamp).getTime();
+                return dateB - dateA;
+            });
+
+            console.log("Formatted documents:", formattedDocs);
+            setRegisteredDocuments(formattedDocs);
+            updateStatus("✅ Documents fetched successfully", "success");
+
+        } catch (error) {
+            console.error("Document fetch error:", {
+                message: error.message,
+                code: error.code,
+                data: error.data,
+                stack: error.stack
+            });
+            updateStatus("❌ Error fetching documents: " + error.message, "error");
         }
+    };
 
-        // Format documents
-        const formattedDocs = Array.from({ length: hashes.length }, (_, index) => ({
-            hash: hashes[index] || "",
-            owner: owners[index] || ethers.ZeroAddress,
-            timestamp: timestamps[index] ? 
-                new Date(Number(timestamps[index]) * 1000).toLocaleString() : 
-                "Unknown",
-            metadata: metadataList[index] || "No metadata",
-            fileUrl: ipfsHashes[index] ? 
-                `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null
-        }));
-
-        // Sort documents by timestamp (newest first)
-        formattedDocs.sort((a, b) => 
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        );
-
-        console.log("Formatted documents:", formattedDocs);
-        setRegisteredDocuments(formattedDocs);
-        updateStatus("✅ Documents fetched successfully", "success");
-
-    } catch (error) {
-        console.error("Document fetch error:", {
-            message: error.message,
-            code: error.code,
-            data: error.data
-        });
-        updateStatus("❌ Error fetching documents: " + error.message, "error");
-    }
-};
     // Add this validation helper function
     const validateContractResponse = (data) => {
         if (!data || typeof data !== 'object') {
@@ -413,6 +397,27 @@ const fetchRegisteredDocuments = async () => {
 
     useEffect(() => {
         fetchRegisteredDocuments();
+    }, []);
+
+    useEffect(() => {
+        // Verify contract setup
+        console.log("Contract setup:", {
+            address: contractAddress,
+            abi: contractABI,
+            provider: readProvider
+        });
+        
+        // Test connection
+        const testConnection = async () => {
+            try {
+                const code = await readProvider.getCode(contractAddress);
+                console.log("Contract code exists:", code !== "0x");
+            } catch (err) {
+                console.error("Contract connection error:", err);
+            }
+        };
+        
+        testConnection();
     }, []);
 
     // Function to switch tabs

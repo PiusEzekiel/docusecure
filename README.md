@@ -32,7 +32,7 @@ DocuSecure is an Ethereum-based DApp that enables users to register, verify, and
 ---
 
 ## 📌 Live Deployment
-- **Smart Contract Address:** `0xff64838b280D7Aec98C2B8dcf59767Ee00789D6F`
+- **Smart Contract Address:** `0x709Dd7BCcC41D4b3507921F747eeC5aAC04DC647`
 - **Frontend Hosted:** [https://docusecure-h8m0.onrender.com](https://docusecure-h8m0.onrender.com/)
 
 ---
