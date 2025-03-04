@@ -43,11 +43,30 @@ contract DocumentRegistry {
     }
 
     // 🔹 Get all registered documents (for UI)
-    function getAllDocuments() public view returns (Document[] memory) {
-        Document[] memory docs = new Document[](documentHashes.length);
-        for (uint i = 0; i < documentHashes.length; i++) {
-            docs[i] = documents[documentHashes[i]];
-        }
-        return docs;
+    function getAllDocuments() public view returns (
+    string[] memory hashes,
+    address[] memory owners,
+    uint256[] memory timestamps,
+    string[] memory metadataList,
+    string[] memory ipfsHashes
+) {
+    uint256 length = documentHashes.length;
+    hashes = new string[](length);
+    owners = new address[](length);
+    timestamps = new uint256[](length);
+    metadataList = new string[](length);
+    ipfsHashes = new string[](length);
+
+    for (uint256 i = 0; i < length; i++) {
+        Document memory doc = documents[documentHashes[i]];
+        hashes[i] = doc.hash;
+        owners[i] = doc.owner;
+        timestamps[i] = doc.timestamp;
+        metadataList[i] = doc.metadata;
+        ipfsHashes[i] = doc.ipfsHash;
     }
+
+    return (hashes, owners, timestamps, metadataList, ipfsHashes);
+}
+
 }

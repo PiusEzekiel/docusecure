@@ -264,26 +264,26 @@ function App() {
     // Fetch all registered documents and sort them with latest first
     const fetchRegisteredDocuments = async () => {
         if (!window.ethereum) return;
-
+    
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            const docs = await contract.getAllDocuments();
-
-            const formattedDocs = docs
-                .map((doc) => ({
-                    hash: doc.hash,
-                    owner: doc.owner,
-                    metadata: doc.metadata,
-                    timestamp: new Date(Number(doc.timestamp) * 1000).toLocaleString(),
-                    fileUrl: `https://ipfs.io/ipfs/${doc.ipfsHash}` || null, // Fetch IPFS URL
-                }))
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Sort latest first
-
+            
+            const [hashes, owners, timestamps, metadataList, ipfsHashes] = await contract.getAllDocuments();
+    
+            const formattedDocs = hashes.map((hash, index) => ({
+                hash: hash,
+                owner: owners[index],
+                timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
+                metadata: metadataList[index],
+                fileUrl: ipfsHashes[index] ? `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null // Use IPFS URL
+            }));
+    
             setRegisteredDocuments(formattedDocs);
         } catch (error) {
             console.error("Error fetching documents", error);
         }
     };
+    
 
     const fetchUserOwnedAssets = async () => {
         if (!window.ethereum) return;

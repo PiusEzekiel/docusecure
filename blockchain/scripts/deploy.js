@@ -8,7 +8,7 @@ async function main() {
 
     // Get current gas price and set a reasonable gas limit
     const feeData = await ethers.provider.getFeeData();
-    const gasLimit = 145694; // Adjust as needed
+    const gasLimit = 205694; // Adjust as needed
 
     const contract = await Contract.deploy({
         gasLimit: gasLimit,
