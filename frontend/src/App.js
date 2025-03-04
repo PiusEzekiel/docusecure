@@ -263,58 +263,82 @@ function App() {
 
 
     // Fetch all registered documents and sort them with latest first
-    const fetchRegisteredDocuments = async () => {
-        if (!window.ethereum) return;
+const fetchRegisteredDocuments = async () => {
+    if (!window.ethereum) {
+        updateStatus("❌ MetaMask not detected", "error");
+        return;
+    }
 
-        try {
-            const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-
-            // Add error handling and logging
-            // Add explicit logging
-        console.log("Calling getAllDocuments...");
+    try {
+        const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
+        
+        // Add debug logging
+        console.log("Contract instance created, calling getAllDocuments...");
+        
+        // Call the contract method
         const result = await contract.getAllDocuments();
-        console.log("Raw result:", result);
-            if (!result) {
-                throw new Error("No data returned from contract");
-            }
-
-            // Destructure with explicit type checking
-            const [hashes, owners, timestamps, metadataList, ipfsHashes] = result;
-
-            // Validate data
-            if (!Array.isArray(hashes) || !Array.isArray(owners) ||
-                !Array.isArray(timestamps) || !Array.isArray(metadataList) ||
-                !Array.isArray(ipfsHashes)) {
-                throw new Error("Invalid data structure returned from contract");
-            }
-
-            // Format documents with additional validation
-            const formattedDocs = hashes.map((hash, index) => {
-                if (index >= owners.length || index >= timestamps.length ||
-                    index >= metadataList.length || index >= ipfsHashes.length) {
-                    throw new Error("Array length mismatch in contract response");
-                }
-
-                return {
-                    hash: hash || "",
-                    owner: owners[index] || ethers.ZeroAddress,
-                    timestamp: timestamps[index] ?
-                        new Date(Number(timestamps[index]) * 1000).toLocaleString() :
-                        "Unknown",
-                    metadata: metadataList[index] || "No metadata",
-                    fileUrl: ipfsHashes[index] ?
-                        `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null
-                };
-            });
-
-            setRegisteredDocuments(formattedDocs);
-
-        } catch (error) {
-            console.error("Error fetching documents:", error);
-            updateStatus("❌ Error fetching documents: " + error.message, "error");
+        console.log("Raw contract response:", result);
+        
+        // Check if result exists and has the correct structure
+        if (!result || result.length !== 5) {
+            throw new Error(`Invalid response structure. Expected 5 arrays, got ${result?.length}`);
         }
-    };
 
+        // Destructure arrays from result
+        const [hashes, owners, timestamps, metadataList, ipfsHashes] = result;
+
+        // Debug logging for arrays
+        console.log("Parsed arrays:", {
+            hashes: [...hashes],
+            owners: [...owners],
+            timestamps: [...timestamps],
+            metadataList: [...metadataList],
+            ipfsHashes: [...ipfsHashes]
+        });
+
+        // Validate array lengths match
+        const arrayLengths = [
+            hashes.length,
+            owners.length,
+            timestamps.length,
+            metadataList.length,
+            ipfsHashes.length
+        ];
+
+        if (!arrayLengths.every(len => len === arrayLengths[0])) {
+            throw new Error("Array length mismatch in contract response");
+        }
+
+        // Format documents
+        const formattedDocs = Array.from({ length: hashes.length }, (_, index) => ({
+            hash: hashes[index] || "",
+            owner: owners[index] || ethers.ZeroAddress,
+            timestamp: timestamps[index] ? 
+                new Date(Number(timestamps[index]) * 1000).toLocaleString() : 
+                "Unknown",
+            metadata: metadataList[index] || "No metadata",
+            fileUrl: ipfsHashes[index] ? 
+                `https://ipfs.io/ipfs/${ipfsHashes[index]}` : null
+        }));
+
+        // Sort documents by timestamp (newest first)
+        formattedDocs.sort((a, b) => 
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        );
+
+        console.log("Formatted documents:", formattedDocs);
+        setRegisteredDocuments(formattedDocs);
+        updateStatus("✅ Documents fetched successfully", "success");
+
+    } catch (error) {
+        console.error("Document fetch error:", {
+            message: error.message,
+            code: error.code,
+            data: error.data
+        });
+        updateStatus("❌ Error fetching documents: " + error.message, "error");
+    }
+};
     // Add this validation helper function
     const validateContractResponse = (data) => {
         if (!data || typeof data !== 'object') {
