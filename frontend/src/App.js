@@ -54,8 +54,12 @@ function App() {
         return signer;
     };
     const updateStatus = (message, type = "") => {
-        setStatus(message);
+        // Truncate the message if it's longer than 100 characters
+        const truncatedMessage = message.length > 100 ? message.slice(0, 100) + "..." : message;
+        
+        setStatus(truncatedMessage);
         setStatusType(type);
+        
         // Auto-clear status after 20 seconds
         setTimeout(() => {
             setStatus("");
