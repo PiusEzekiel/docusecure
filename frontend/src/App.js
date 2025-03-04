@@ -234,24 +234,23 @@ function App() {
         try {
             setLoadingVerify(true);
             updateStatus("🔄 Verifying document...");
-
+    
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            const data = await contract.verifyDocument(hash);
-
-            if (!data || data[0] === ethers.ZeroAddress) {
+            const [owner, timestamp, metadata, ipfsHash] = await contract.verifyDocument(hash);
+    
+            if (!owner || owner === ethers.ZeroAddress) {
                 updateStatus("❌ Document not found", "error");
                 setDocumentInfo(null);
                 return;
             }
-
-            const timestamp = Number(data[1]);
+    
             setDocumentInfo({
-                owner: data[0],
-                timestamp: new Date(timestamp * 1000).toLocaleString(),
-                metadata: data[2],
-                fileUrl: `https://ipfs.io/ipfs/${data[3]}` || null, // Fetch IPFS file
+                owner,
+                timestamp: new Date(Number(timestamp) * 1000).toLocaleString(),
+                metadata,
+                fileUrl: ipfsHash ? `https://ipfs.io/ipfs/${ipfsHash}` : null,
             });
-
+    
             updateStatus("✅ Document verified successfully!", "success");
         } catch (error) {
             updateStatus("❌ Verification failed: " + error.message, "error");
@@ -267,13 +266,13 @@ function App() {
     
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            
+    
             // ✅ Fetch documents as separate arrays
             const [hashes, owners, timestamps, metadataList, ipfsHashes] = await contract.getAllDocuments();
     
             // ✅ Convert arrays into structured objects
             const formattedDocs = hashes.map((hash, index) => ({
-                hash: hash,
+                hash,
                 owner: owners[index],
                 timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
                 metadata: metadataList[index],
@@ -282,9 +281,11 @@ function App() {
     
             setRegisteredDocuments(formattedDocs);
         } catch (error) {
-            console.error("Error fetching documents", error);
+            console.error("Error fetching documents:", error);
+            updateStatus("❌ Error fetching documents from the blockchain.", "error");
         }
     };
+    
     
 
     const fetchUserOwnedAssets = async () => {
