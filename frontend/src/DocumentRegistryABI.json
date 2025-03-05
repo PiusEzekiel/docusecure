@@ -29,7 +29,7 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "ipfsHash",
+        "name": "cid",
         "type": "string"
       }
     ],
@@ -87,7 +87,41 @@
       },
       {
         "internalType": "string[]",
-        "name": "ipfsHashes",
+        "name": "cids",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "getDocumentsByOwner",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "hashes",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "metadataList",
+        "type": "string[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "timestamps",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "cids",
         "type": "string[]"
       }
     ],
@@ -108,7 +142,7 @@
       },
       {
         "internalType": "string",
-        "name": "_ipfsHash",
+        "name": "_cid",
         "type": "string"
       }
     ],
@@ -147,22 +181,22 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "owner",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "timestamp",
         "type": "uint256"
       },
       {
         "internalType": "string",
-        "name": "",
+        "name": "metadata",
         "type": "string"
       },
       {
         "internalType": "string",
-        "name": "",
+        "name": "cid",
         "type": "string"
       }
     ],

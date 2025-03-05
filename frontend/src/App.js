@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import { FaRegCopy } from "react-icons/fa";
-import { create } from "ipfs-http-client";
+// import { create } from "ipfs-http-client";
 
 const contractABI = require("./DocumentRegistryABI.json");
 const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
@@ -18,15 +18,15 @@ const contract = new ethers.Contract(contractAddress, contractABI, readProvider)
 
 // Connect to Infura IPFS (or use your own IPFS node)
 
-const ipfs = create({
-    host: "api.pinata.cloud",
-    port: 443,
-    protocol: "https",
-    headers: {
-        pinata_api_key: process.env.REACT_APP_PINATA_API_KEY,
-        pinata_secret_api_key: process.env.REACT_APP_PINATA_SECRET_API_KEY,
-    }
-});
+// const ipfs = create({
+//     host: "api.pinata.cloud",
+//     port: 443,
+//     protocol: "https",
+//     headers: {
+//         pinata_api_key: process.env.REACT_APP_PINATA_API_KEY,
+//         pinata_secret_api_key: process.env.REACT_APP_PINATA_SECRET_API_KEY,
+//     }
+// });
 
 
 
@@ -47,6 +47,7 @@ function App() {
     const [showInfoBox, setShowInfoBox] = useState(false);
     const [statusType, setStatusType] = useState("");
     const [ipfsHash, setIpfsHash] = useState("");
+    const [cid, setCid] = useState(""); // Change from ipfsHash to CID
     const [ownedDocuments, setOwnedDocuments] = useState([]); // Stores user-owned documents
 
 
@@ -55,7 +56,7 @@ function App() {
 
     const getSigner = async () => {
         if (!window.ethereum) {
-            throw new Error("MetaMask is not installed");
+            throw new Error("Crypto Wallet Not installed");
         }
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
@@ -74,7 +75,7 @@ function App() {
 
     const connectWallet = async () => {
         if (!window.ethereum) {
-            updateStatus("❌ MetaMask not detected", "error");
+            updateStatus("❌ Crypto Wallet Not Detected", "error");
             return;
         }
         try {
@@ -92,42 +93,46 @@ function App() {
     const handleFileChange = async (event) => {
         const selectedFile = event.target.files[0];
         setFile(selectedFile);
-
+    
         if (selectedFile) {
             const formData = new FormData();
             formData.append("file", selectedFile);
-
-            updateStatus("🔄 Uploading file to IPFS...", "info"); // Initial status message
-
+    
+            updateStatus("🔄 Uploading file to IPFS via Pinata...", "info");
+    
             try {
                 const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
                     method: "POST",
                     headers: {
-                        "Authorization": `Bearer ${process.env.REACT_APP_JWT}`,
+                        "Authorization": `Bearer ${process.env.REACT_APP_PINATA_JWT}`,
                     },
                     body: formData,
                 });
-
+    
                 if (!response.ok) {
                     throw new Error(`Pinata Upload Failed: ${response.statusText}`);
                 }
-
+    
                 const result = await response.json();
-                const ipfsHash = result.IpfsHash; // Extract CID from response
-
-                setFilePreview(`https://ipfs.io/ipfs/${ipfsHash}` || `https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
-                setIpfsHash(ipfsHash);
+                console.log("✅ IPFS Upload Response:", result);
+    
+                if (!result.IpfsHash) {
+                    throw new Error("Received empty IPFS hash from Pinata");
+                }
+    
+                const fileCID = result.IpfsHash; // Use CID instead of IPFS hash
+                setFilePreview(`https://ipfs.io/ipfs/${fileCID}`);
+                setCid(fileCID); // Store CID instead of ipfsHash
                 updateStatus("✅ File uploaded to IPFS successfully!", "success");
-
+    
             } catch (error) {
                 console.error("IPFS Upload Error:", error);
                 updateStatus(`❌ IPFS upload failed: ${error.message}`, "error");
             }
         }
     };
-
-
-
+    
+    
     // Hash document for registration
     const hashDocument = async () => {
         updateStatus("🔄 Preparing to register document...");
@@ -158,6 +163,11 @@ function App() {
             updateStatus("❌ Error reading file. Try again.", "error");
         };
 
+        reader.onerror = (error) => {
+            toast.error("❌ Error reading file");
+            setStatus("❌ Error reading file. Try again.", "success");
+        };
+
         reader.readAsArrayBuffer(file);
     };
 
@@ -178,31 +188,30 @@ function App() {
     // Register document on blockchain
     const registerDocument = async (hash) => {
         if (!window.ethereum) {
-            updateStatus("❌ MetaMask not detected", "error");
+            updateStatus("❌ Crypto Wallet Not Detected", "error");
             return;
         }
-        if (!ipfsHash) {
+        if (!cid) {
             updateStatus("❌ File not uploaded to IPFS yet", "error");
             return;
         }
-
         if (!metadata) {
             updateStatus("❌ Metadata missing", "error");
             return;
         }
-
+    
         try {
             setLoadingRegister(true);
             updateStatus("🔄 Uploading to blockchain...");
-
+    
             const signer = await getSigner();
             const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
-
-            console.log("Calling registerDocument with:", hash, metadata, ipfsHash);
-
-            const tx = await contractWithSigner.registerDocument(hash, metadata, ipfsHash);
+    
+            console.log("Calling registerDocument with:", hash, metadata, cid);
+    
+            const tx = await contractWithSigner.registerDocument(hash, metadata, cid);
             const receipt = await tx.wait();
-
+    
             if (receipt.status === 1) {
                 updateStatus("✅ Document registered successfully!", "success");
                 setShowInfoBox(true);
@@ -217,40 +226,42 @@ function App() {
             setLoadingRegister(false);
         }
     };
-
+    
     // Verify document on blockchain
     const verifyDocument = async () => {
         if (!hash) {
             updateStatus("❌ Please enter a document hash", "error");
             return;
         }
-
+    
         const isValidHash = /^[a-fA-F0-9]{64}$/.test(hash);
         if (!isValidHash) {
             updateStatus("❌ Invalid document hash format", "error");
             return;
         }
-
+    
         try {
             setLoadingVerify(true);
             updateStatus("🔄 Verifying document...");
-
+    
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            const [owner, timestamp, metadata, ipfsHash] = await contract.verifyDocument(hash);
-
+            
+            // Updated: Fetch document details using CID instead of IPFS hash
+            const [owner, timestamp, metadata, cid] = await contract.verifyDocument(hash);
+    
             if (!owner || owner === ethers.ZeroAddress) {
                 updateStatus("❌ Document not found", "error");
                 setDocumentInfo(null);
                 return;
             }
-
+    
             setDocumentInfo({
                 owner,
                 timestamp: new Date(Number(timestamp) * 1000).toLocaleString(),
                 metadata,
-                fileUrl: ipfsHash ? `https://ipfs.io/ipfs/${ipfsHash}` : null,
+                fileUrl: cid ? `https://ipfs.io/ipfs/${cid}` : null,  // Using CID instead of IPFS Hash
             });
-
+    
             updateStatus("✅ Document verified successfully!", "success");
         } catch (error) {
             updateStatus("❌ Verification failed: " + error.message, "error");
@@ -259,7 +270,7 @@ function App() {
             setLoadingVerify(false);
         }
     };
-
+    
 
 
     // Fetch all registered documents and sort them with latest first
@@ -268,96 +279,87 @@ function App() {
             updateStatus("❌ MetaMask not detected", "error");
             return;
         }
-
+    
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
             console.log("Contract instance created, calling getAllDocuments...");
-
-            // Get raw data
+    
             const result = await contract.getAllDocuments();
             console.log("Raw result:", result);
-
-            // Ensure we have all arrays
+    
             if (!result || result.length !== 5) {
                 throw new Error("Invalid response structure from contract");
             }
-
-            // Destructure with type checking
-            const [hashes, owners, timestamps, metadataList, ipfsHashes] = result;
-
-            // Validate arrays
+    
+            const [hashes, owners, timestamps, metadataList, cids] = result;
+    
             if (!Array.isArray(hashes) || !Array.isArray(owners) || 
                 !Array.isArray(timestamps) || !Array.isArray(metadataList) || 
-                !Array.isArray(ipfsHashes)) {
+                !Array.isArray(cids)) {
                 throw new Error("Invalid data structure in response");
             }
-
-            // Format documents with proper type conversion
+    
             const formattedDocs = hashes.map((hash, index) => ({
                 hash: hash.toString(),
                 owner: owners[index],
                 timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
                 metadata: metadataList[index].toString(),
-                fileUrl: ipfsHashes[index] ? 
-                    `https://ipfs.io/ipfs/${ipfsHashes[index].toString()}` : null
+                fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null
             }));
-
+    
             console.log("Formatted documents:", formattedDocs);
             setRegisteredDocuments(formattedDocs);
             updateStatus("✅ Documents fetched successfully", "success");
-
+    
         } catch (error) {
-            console.error("Document fetch error:", {
-                message: error.message,
-                code: error.code,
-                data: error.data,
-                raw: error
-            });
+            console.error("Document fetch error:", error);
             updateStatus("❌ Error fetching documents: " + error.message, "error");
         }
     };
-
-    // Add this validation helper function
-    const validateContractResponse = (data) => {
-        if (!data || typeof data !== 'object') {
-            throw new Error("Invalid contract response");
-        }
-
-        const requiredArrays = ['hashes', 'owners', 'timestamps', 'metadataList', 'ipfsHashes'];
-        for (const key of requiredArrays) {
-            if (!Array.isArray(data[key])) {
-                throw new Error(`Missing or invalid ${key} array in contract response`);
-            }
-        }
-
-        const length = data.hashes.length;
-        if (!requiredArrays.every(key => data[key].length === length)) {
-            throw new Error("Array length mismatch in contract response");
-        }
-
-        return true;
-    };
+    
 
 
     const fetchUserOwnedAssets = async () => {
-        if (!window.ethereum) return;
-
+        if (!window.ethereum) {
+            console.error("❌ MetaMask not detected");
+            return;
+        }
+    
+        if (!account) {
+            console.error("❌ Wallet not connected");
+            return;
+        }
+    
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            const ownedDocs = await contract.getDocumentsByOwner(account); // Fetch user-specific assets
-
+            console.log(`🔍 Fetching documents owned by: ${account}`);
+    
+            // Call the updated Solidity function
+            const [hashes, metadataList, timestamps, cids] = await contract.getDocumentsByOwner(account);
+            console.log("📜 Raw contract response:", { hashes, metadataList, timestamps, cids });
+    
+            if (!Array.isArray(hashes) || hashes.length === 0) {
+                console.warn("⚠️ No documents found for this account");
+                setOwnedDocuments([]);
+                return;
+            }
+    
             setOwnedDocuments(
-                ownedDocs.map((doc) => ({
-                    hash: doc.hash,
-                    metadata: doc.metadata,
-                    timestamp: new Date(Number(doc.timestamp) * 1000).toLocaleString(),
+                hashes.map((hash, index) => ({
+                    hash,
+                    metadata: metadataList[index],
+                    timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
+                    fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index]}` : null, // Use CID correctly
                 }))
             );
+    
+            console.log("✅ User documents successfully fetched", hashes);
+    
         } catch (error) {
-            console.error("Error fetching owned documents", error);
+            console.error("🚨 Error fetching owned documents:", error);
         }
     };
-
+    
 
     // Transfer document ownership
     const transferOwnership = async () => {
@@ -388,55 +390,13 @@ function App() {
         }
     };
 
-    // Add this near your other utility functions
-    const debugContractSetup = async () => {
-        try {
-            const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            
-            // Check contract deployment
-            const code = await readProvider.getCode(contractAddress);
-            console.log("Contract deployed:", code !== "0x");
-            
-            // Check ABI interface
-            console.log("Contract interface:", {
-                functions: Object.keys(contract.interface.functions),
-                events: Object.keys(contract.interface.events)
-            });
-            
-            // Check network
-            const network = await readProvider.getNetwork();
-            console.log("Network:", network);
-            
-        } catch (error) {
-            console.error("Contract setup error:", error);
-        }
-    };
 
     useEffect(() => {
-        debugContractSetup();
+
         fetchRegisteredDocuments();
     }, []);
 
-    useEffect(() => {
-        // Verify contract setup
-        console.log("Contract setup:", {
-            address: contractAddress,
-            abi: contractABI,
-            provider: readProvider
-        });
-        
-        // Test connection
-        const testConnection = async () => {
-            try {
-                const code = await readProvider.getCode(contractAddress);
-                console.log("Contract code exists:", code !== "0x");
-            } catch (err) {
-                console.error("Contract connection error:", err);
-            }
-        };
-        
-        testConnection();
-    }, []);
+
 
     // Function to switch tabs
     const handleTabChange = (tab) => {
