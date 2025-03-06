@@ -304,7 +304,7 @@ function App() {
                 owner: owners[index],
                 timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
                 metadata: metadataList[index].toString(),
-                fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null
+                fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null 
             }));
     
             console.log("Formatted documents:", formattedDocs);
@@ -521,11 +521,12 @@ function App() {
                                 <p><b>Registered On:</b> {documentInfo.timestamp}</p>
                                 <p><b>Metadata:</b> {documentInfo.metadata}</p>
                                 {documentInfo.fileUrl && (
-                                    <div className="file-preview">
-                                        <img src={documentInfo.fileUrl} alt="Document file preview" />
-                                        <p>Document Preview</p>
-                                    </div>
-                                )}
+    <div className="file-preview">
+        <img src={documentInfo.fileUrl} alt="Document file preview" />
+        <p>File preview</p>
+    </div>
+)}
+
                             </div>
                         )}
 
