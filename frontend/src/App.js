@@ -521,12 +521,11 @@ function App() {
                                 <p><b>Registered On:</b> {documentInfo.timestamp}</p>
                                 <p><b>Metadata:</b> {documentInfo.metadata}</p>
                                 {documentInfo.fileUrl && (
-    <div className="file-preview">
-        <img src={documentInfo.fileUrl} alt="Document file preview" />
-        <p>File preview</p>
-    </div>
-)}
-
+                                    <div className="file-preview">
+                                        <img src={documentInfo.fileUrl} alt="Document file preview" />
+                                        <p>Document Preview</p>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -556,9 +555,9 @@ function App() {
                                         <div>
                                             <p><b>Registered On:</b> {doc.timestamp}</p>
                                             <p><b>Metadata:</b> {doc.metadata || "N/A"}</p>
-                                            {doc.filePreview && (
+                                            {doc.fileUrl && (
                                                 <div className="file-preview">
-                                                    <img src={doc.filePreview} alt="Document file preview" />
+                                                    <img src={doc.fileUrl} alt="Document file preview" />
                                                     <p>File preview</p>
                                                 </div>
                                             )}
