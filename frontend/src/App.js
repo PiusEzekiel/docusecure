@@ -561,7 +561,7 @@ function App() {
                             onClick={hashDocument}
                             disabled={loadingAction.register}
                         >
-                            {loadingAction.register ? "Processing..." : actionSuccess.register ? "✅ Registered!" : actionError.register ? "❌ Failed" : "Register Document"}
+                            {loadingAction.register ? "Processing..." : actionSuccess.register ? "✅ Registered!" : actionError.register ? "Failed" : "Register Document"}
                         </button>
                         {showInfoBox && registeredDocuments.length > 0 && (
                             <div className="info-box fade-in">
@@ -603,7 +603,7 @@ function App() {
                             onClick={verifyDocument}
                             disabled={loadingAction.verify}
                         >
-                            {loadingAction.verify ? "Checking..." : actionSuccess.verify ? "✅ Verified!" : actionError.verify ? "❌ Failed" : "Verify Document"}
+                            {loadingAction.verify ? "Checking..." : actionSuccess.verify ? "✅ Verified!" : actionError.verify ? "Failed" : "Verify Document"}
                         </button>
                         {documentInfo && (
                             <div className="info-box">
@@ -726,7 +726,7 @@ function App() {
                             onClick={transferOwnership}
                             disabled={loadingAction.transfer}
                         >
-                            {loadingAction.transfer ? "Processing..." : actionSuccess.transfer ? "✅ Transferred!" : actionError.transfer ? "❌ Failed" : "Transfer Ownership"}
+                            {loadingAction.transfer ? "Processing..." : actionSuccess.transfer ? "✅ Transferred!" : actionError.transfer ? "Failed" : "Transfer Ownership"}
                         </button>
                     </div>
                 )}
