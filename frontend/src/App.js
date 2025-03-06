@@ -52,8 +52,10 @@ function App() {
                     const signer = await provider.getSigner();
                     const address = await signer.getAddress();
                     setAccount(address);
-
-                    await fetchUserOwnedAssets(signer); // Fetch owned documents after connecting
+                    // 🕒 Wait for 3 seconds before fetching owned assets
+                setTimeout(async () => {
+                    await fetchUserOwnedAssets(signer);
+                }, 3000);
                 } catch (error) {
                     console.error("Auto-connect failed:", error);
                     updateStatus("❌ Auto-connect failed", "error")
