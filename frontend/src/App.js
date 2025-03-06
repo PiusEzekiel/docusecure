@@ -359,6 +359,13 @@ function App() {
             console.error("🚨 Error fetching owned documents:", error);
         }
     };
+
+    useEffect(() => {
+        if (activeTab === "transfer") {
+            fetchUserOwnedAssets();
+        }
+    }, [activeTab]);
+    
     
 
     // Transfer document ownership
@@ -573,6 +580,8 @@ function App() {
                 )}
 
                 {/* Transfer Ownership */}
+
+                
 
                 {activeTab === "transfer" && (
                     <div className="card fade-in">
