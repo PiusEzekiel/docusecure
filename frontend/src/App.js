@@ -94,13 +94,13 @@ function App() {
     const handleFileChange = async (event) => {
         const selectedFile = event.target.files[0];
         setFile(selectedFile);
-    
+
         if (selectedFile) {
             const formData = new FormData();
             formData.append("file", selectedFile);
-    
+
             updateStatus("🔄 Uploading file to IPFS via Pinata...", "info");
-    
+
             try {
                 const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
                     method: "POST",
@@ -109,31 +109,31 @@ function App() {
                     },
                     body: formData,
                 });
-    
+
                 if (!response.ok) {
                     throw new Error(`Pinata Upload Failed: ${response.statusText}`);
                 }
-    
+
                 const result = await response.json();
                 console.log("✅ IPFS Upload Response:", result);
-    
+
                 if (!result.IpfsHash) {
                     throw new Error("Received empty IPFS hash from Pinata");
                 }
-    
+
                 const fileCID = result.IpfsHash; // Use CID instead of IPFS hash
                 setFilePreview(`https://ipfs.io/ipfs/${fileCID}`);
                 setCid(fileCID); // Store CID instead of ipfsHash
                 updateStatus("✅ File uploaded to IPFS successfully!", "success");
-    
+
             } catch (error) {
                 console.error("IPFS Upload Error:", error);
                 updateStatus(`❌ IPFS upload failed: ${error.message}`, "error");
             }
         }
     };
-    
-    
+
+
     // Hash document for registration
     const hashDocument = async () => {
         updateStatus("🔄 Preparing to register document...");
@@ -200,19 +200,19 @@ function App() {
             updateStatus("❌ Metadata missing", "error");
             return;
         }
-    
+
         try {
             setLoadingRegister(true);
             updateStatus("🔄 Uploading to blockchain...");
-    
+
             const signer = await getSigner();
             const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
-    
+
             console.log("Calling registerDocument with:", hash, metadata, cid);
-    
+
             const tx = await contractWithSigner.registerDocument(hash, metadata, cid);
             const receipt = await tx.wait();
-    
+
             if (receipt.status === 1) {
                 updateStatus("✅ Document registered successfully!", "success");
                 setShowInfoBox(true);
@@ -227,42 +227,42 @@ function App() {
             setLoadingRegister(false);
         }
     };
-    
+
     // Verify document on blockchain
     const verifyDocument = async () => {
         if (!hash) {
             updateStatus("❌ Please enter a document hash", "error");
             return;
         }
-    
+
         const isValidHash = /^[a-fA-F0-9]{64}$/.test(hash);
         if (!isValidHash) {
             updateStatus("❌ Invalid document hash format", "error");
             return;
         }
-    
+
         try {
             setLoadingVerify(true);
             updateStatus("🔄 Verifying document...");
-    
+
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            
+
             // Updated: Fetch document details using CID instead of IPFS hash
             const [owner, timestamp, metadata, cid] = await contract.verifyDocument(hash);
-    
+
             if (!owner || owner === ethers.ZeroAddress) {
                 updateStatus("❌ Document not found", "error");
                 setDocumentInfo(null);
                 return;
             }
-    
+
             setDocumentInfo({
                 owner,
                 timestamp: new Date(Number(timestamp) * 1000).toLocaleString(),
                 metadata,
                 fileUrl: cid ? `https://ipfs.io/ipfs/${cid}` : null,  // Using CID instead of IPFS Hash
             });
-    
+
             updateStatus("✅ Document verified successfully!", "success");
         } catch (error) {
             updateStatus("❌ Verification failed: " + error.message, "error");
@@ -271,7 +271,7 @@ function App() {
             setLoadingVerify(false);
         }
     };
-    
+
 
 
     // Fetch all registered documents and sort them with latest first
@@ -280,44 +280,44 @@ function App() {
             updateStatus("❌ MetaMask not detected", "error");
             return;
         }
-    
+
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
             console.log("Contract instance created, calling getAllDocuments...");
-    
+
             const result = await contract.getAllDocuments();
             console.log("Raw result:", result);
-    
+
             if (!result || result.length !== 5) {
                 throw new Error("Invalid response structure from contract");
             }
-    
+
             const [hashes, owners, timestamps, metadataList, cids] = result;
-    
-            if (!Array.isArray(hashes) || !Array.isArray(owners) || 
-                !Array.isArray(timestamps) || !Array.isArray(metadataList) || 
+
+            if (!Array.isArray(hashes) || !Array.isArray(owners) ||
+                !Array.isArray(timestamps) || !Array.isArray(metadataList) ||
                 !Array.isArray(cids)) {
                 throw new Error("Invalid data structure in response");
             }
-    
+
             const formattedDocs = hashes.map((hash, index) => ({
                 hash: hash.toString(),
                 owner: owners[index],
                 timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
                 metadata: metadataList[index].toString(),
-                fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null 
+                fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null
             }));
-    
+
             console.log("Formatted documents:", formattedDocs);
             setRegisteredDocuments(formattedDocs);
             updateStatus("✅ Documents fetched successfully", "success");
-    
+
         } catch (error) {
             console.error("Document fetch error:", error);
             updateStatus("❌ Error fetching documents: " + error.message, "error");
         }
     };
-    
+
 
 
     const fetchUserOwnedAssets = async () => {
@@ -326,28 +326,28 @@ function App() {
             setStatus("❌ Crypto Wallet Not Detected", "error");
             return;
         }
-    
+
         if (!account) {
             console.error("❌ Wallet not connected");
             setStatus("❌ Connect Wallet", "error");
             return;
         }
-    
+
         try {
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
             console.log(`🔍 Fetching documents owned by: ${account}`);
-    
+
             // Call the updated Solidity function
             const [hashes, metadataList, timestamps, cids] = await contract.getDocumentsByOwner(account);
             console.log("📜 Raw contract response:", { hashes, metadataList, timestamps, cids });
-    
+
             if (!Array.isArray(hashes) || hashes.length === 0) {
                 console.warn("⚠️ No documents found for this account");
                 updateStatus("⚠️ No documents found for this account", "error");
                 setOwnedDocuments([]);
                 return;
             }
-    
+
             setOwnedDocuments(
                 hashes.map((hash, index) => ({
                     hash,
@@ -356,10 +356,10 @@ function App() {
                     fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index]}` : null, // Use CID correctly
                 }))
             );
-    
+
             console.log("✅ User documents successfully fetched", hashes);
             updateStatus("✅ User documents successfully fetched", "success");
-    
+
         } catch (error) {
             console.error("🚨 Error fetching owned documents:", error);
         }
@@ -370,8 +370,26 @@ function App() {
             fetchUserOwnedAssets();
         }
     }, [activeTab]);
+
+    // Handle dropdown selection
+    const handleSelectDocument = (selectedHash) => {
+        setHash(selectedHash); // Set selected document hash
+        setShowDropdown(false); // Close dropdown
+    };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest(".custom-dropdown")) {
+                setShowDropdown(false);
+            }
+        };
     
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
     
+
 
     // Transfer document ownership
     const transferOwnership = async () => {
@@ -567,7 +585,7 @@ function App() {
                                             <p><b>Metadata:</b> {doc.metadata || "N/A"}</p>
                                         </div>
                                         <div>
-                                            
+
                                             {doc.fileUrl && (
                                                 <div className="file-preview">
                                                     <img src={doc.fileUrl} alt="Document file preview" />
@@ -586,34 +604,36 @@ function App() {
 
                 {/* Transfer Ownership */}
 
-                
+
 
                 {activeTab === "transfer" && (
                     <div className="card fade-in">
                         <h3>Transfer Ownership</h3>
                         <div className="custom-dropdown">
-    <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
-        {hash ? ownedDocuments.find(doc => doc.hash === hash)?.metadata || "Select a document..." : "Select a document..."}
-    </div>
-    
-    {showDropdown && (
-        <div className="dropdown-menu">
-            {ownedDocuments.map((doc) => (
-                <div key={doc.hash} className="dropdown-item" onClick={() => setHash(doc.hash)}>
-                    <div className="dropdown-content">
-                        {doc.fileUrl && (
-                            <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
-                        )}
-                        <div className="dropdown-text">
-                            <strong>{doc.metadata}</strong>
-                            <p className="dropdown-timestamp">{doc.timestamp}</p>
+        {/* Clickable dropdown header */}
+        <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
+            {hash ? ownedDocuments.find(doc => doc.hash === hash)?.metadata || "Select a document..." : "Select a document..."}
+        </div>
+
+        {/* Dropdown Menu */}
+        {showDropdown && (
+            <div className="dropdown-menu">
+                {ownedDocuments.map((doc) => (
+                    <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
+                        <div className="dropdown-content">
+                            {doc.fileUrl && (
+                                <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
+                            )}
+                            <div className="dropdown-text">
+                                <p>{doc.metadata}</p>
+                                <p >{doc.timestamp}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
-        </div>
-    )}
-</div>
+                ))}
+            </div>
+        )}
+    </div>
 
 
                         <input
