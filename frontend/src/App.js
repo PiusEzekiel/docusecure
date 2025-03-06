@@ -6,27 +6,16 @@ import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 import { FaRegCopy } from "react-icons/fa";
-// import { create } from "ipfs-http-client";
+
 
 const contractABI = require("./DocumentRegistryABI.json");
 const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
 
 // Automatically select the right provider
 const readProvider = new ethers.JsonRpcProvider(process.env.REACT_APP_MAINNET_RPC_URL);
-const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
+// const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
 
 
-// Connect to Infura IPFS (or use your own IPFS node)
-
-// const ipfs = create({
-//     host: "api.pinata.cloud",
-//     port: 443,
-//     protocol: "https",
-//     headers: {
-//         pinata_api_key: process.env.REACT_APP_PINATA_API_KEY,
-//         pinata_secret_api_key: process.env.REACT_APP_PINATA_SECRET_API_KEY,
-//     }
-// });
 
 
 
@@ -46,14 +35,32 @@ function App() {
     const [transferTo, setTransferTo] = useState("");
     const [showInfoBox, setShowInfoBox] = useState(false);
     const [statusType, setStatusType] = useState("");
-    const [ipfsHash, setIpfsHash] = useState("");
     const [cid, setCid] = useState(""); // Change from ipfsHash to CID
     const [ownedDocuments, setOwnedDocuments] = useState([]); // Stores user-owned documents
     const [showDropdown, setShowDropdown] = useState(false);
 
 
     // This state maps document hash to its preview URL.
-    const [registeredFilePreviews, setRegisteredFilePreviews] = useState({});
+    // const [registeredFilePreviews, setRegisteredFilePreviews] = useState({});
+
+    // **Auto-connect Wallet on Load**
+    useEffect(() => {
+        const autoConnect = async () => {
+            if (window.ethereum) {
+                try {
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    const signer = await provider.getSigner();
+                    const address = await signer.getAddress();
+                    setAccount(address);
+                    await fetchUserOwnedAssets(signer); // Fetch owned documents after connecting
+                } catch (error) {
+                    console.error("Auto-connect failed:", error);
+                    updateStatus("❌ Auto-connect failed", "error")
+                }
+            }
+        };
+        autoConnect();
+    }, []);
 
     const getSigner = async () => {
         if (!window.ethereum) {
@@ -166,7 +173,7 @@ function App() {
 
         reader.onerror = (error) => {
             toast.error("❌ Error reading file");
-            setStatus("❌ Error reading file. Try again.", "success");
+            updateStatus("❌ Error reading file. Try again.", "success");
         };
 
         reader.readAsArrayBuffer(file);
@@ -320,30 +327,18 @@ function App() {
 
 
 
-    const fetchUserOwnedAssets = async () => {
-        if (!window.ethereum) {
-            console.error("❌ MetaMask not detected");
-            setStatus("❌ Crypto Wallet Not Detected", "error");
-            return;
-        }
-
-        if (!account) {
-            console.error("❌ Wallet not connected");
-            setStatus("❌ Connect Wallet", "error");
-            return;
-        }
-
+    // **Fetch User Owned Documents**
+    const fetchUserOwnedAssets = async (signer = null) => {
         try {
-            const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
+            if (!signer) signer = await getSigner(); // Use signer if passed, else getSigner()
+            const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
             console.log(`🔍 Fetching documents owned by: ${account}`);
 
-            // Call the updated Solidity function
-            const [hashes, metadataList, timestamps, cids] = await contract.getDocumentsByOwner(account);
+            const [hashes, metadataList, timestamps, cids] = await contractWithSigner.getDocumentsByOwner(account);
             console.log("📜 Raw contract response:", { hashes, metadataList, timestamps, cids });
 
             if (!Array.isArray(hashes) || hashes.length === 0) {
                 console.warn("⚠️ No documents found for this account");
-                updateStatus("⚠️ No documents found for this account", "error");
                 setOwnedDocuments([]);
                 return;
             }
@@ -353,23 +348,16 @@ function App() {
                     hash,
                     metadata: metadataList[index],
                     timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
-                    fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index]}` : null, // Use CID correctly
+                    fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index]}` : null,
                 }))
             );
 
             console.log("✅ User documents successfully fetched", hashes);
-            updateStatus("✅ User documents successfully fetched", "success");
-
         } catch (error) {
             console.error("🚨 Error fetching owned documents:", error);
         }
     };
 
-    useEffect(() => {
-        if (activeTab === "transfer") {
-            fetchUserOwnedAssets();
-        }
-    }, [activeTab]);
 
     // Handle dropdown selection
     const handleSelectDocument = (selectedHash) => {
@@ -384,11 +372,11 @@ function App() {
                 setShowDropdown(false);
             }
         };
-    
+
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
-    
+
 
 
     // Transfer document ownership
@@ -610,30 +598,30 @@ function App() {
                     <div className="card fade-in">
                         <h3>Transfer Ownership</h3>
                         <div className="custom-dropdown">
-        {/* Clickable dropdown header */}
-        <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
-            {hash ? ownedDocuments.find(doc => doc.hash === hash)?.metadata || "Select a document..." : "Select a document..."}
-        </div>
-
-        {/* Dropdown Menu */}
-        {showDropdown && (
-            <div className="dropdown-menu">
-                {ownedDocuments.map((doc) => (
-                    <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
-                        <div className="dropdown-content">
-                            {doc.fileUrl && (
-                                <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
-                            )}
-                            <div className="dropdown-text">
-                                <p>{doc.metadata}</p>
-                                <p >{doc.timestamp}</p>
+                            {/* Clickable dropdown header */}
+                            <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
+                                {hash ? ownedDocuments.find(doc => doc.hash === hash)?.metadata || "Select a document..." : "Select a document..."}
                             </div>
+
+                            {/* Dropdown Menu */}
+                            {showDropdown && (
+                                <div className="dropdown-menu">
+                                    {ownedDocuments.map((doc) => (
+                                        <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
+                                            <div className="dropdown-content">
+                                                {doc.fileUrl && (
+                                                    <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
+                                                )}
+                                                <div className="dropdown-text">
+                                                    <p>{doc.metadata}</p>
+                                                    <p >{doc.timestamp}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
-            </div>
-        )}
-    </div>
 
 
                         <input
