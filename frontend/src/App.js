@@ -43,24 +43,24 @@ function App() {
     // This state maps document hash to its preview URL.
     // const [registeredFilePreviews, setRegisteredFilePreviews] = useState({});
 
-    // **Auto-connect Wallet on Load**
-    useEffect(() => {
-        const autoConnect = async () => {
-            if (window.ethereum) {
-                try {
-                    const provider = new ethers.BrowserProvider(window.ethereum);
-                    const signer = await provider.getSigner();
-                    const address = await signer.getAddress();
-                    setAccount(address);
-                    await fetchUserOwnedAssets(signer); // Fetch owned documents after connecting
-                } catch (error) {
-                    console.error("Auto-connect failed:", error);
-                    updateStatus("❌ Auto-connect failed", "error")
-                }
+// **Auto-connect Wallet on Load**
+useEffect(() => {
+    const autoConnect = async () => {
+        if (window.ethereum) {
+            try {
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const signer = await provider.getSigner();
+                const address = await signer.getAddress();
+                setAccount(address);
+                await fetchUserOwnedAssets(signer); // Fetch owned documents after connecting
+            } catch (error) {
+                console.error("Auto-connect failed:", error);
+                updateStatus("❌ Auto-connect failed", "error")
             }
-        };
-        autoConnect();
-    }, []);
+        }
+    };
+    autoConnect();
+}, []);
 
     const getSigner = async () => {
         if (!window.ethereum) {
@@ -327,18 +327,30 @@ function App() {
 
 
 
-    // **Fetch User Owned Documents**
-    const fetchUserOwnedAssets = async (signer = null) => {
+    const fetchUserOwnedAssets = async () => {
+        if (!window.ethereum) {
+            console.error("❌ MetaMask not detected");
+            updateStatus("❌ Crypto Wallet Not Detected", "error");
+            return;
+        }
+
+        if (!account) {
+            console.error("❌ Wallet not connected");
+            updateStatus("❌ Connect Wallet", "error");
+            return;
+        }
+
         try {
-            if (!signer) signer = await getSigner(); // Use signer if passed, else getSigner()
-            const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
+            const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
             console.log(`🔍 Fetching documents owned by: ${account}`);
 
-            const [hashes, metadataList, timestamps, cids] = await contractWithSigner.getDocumentsByOwner(account);
+            // Call the updated Solidity function
+            const [hashes, metadataList, timestamps, cids] = await contract.getDocumentsByOwner(account);
             console.log("📜 Raw contract response:", { hashes, metadataList, timestamps, cids });
 
             if (!Array.isArray(hashes) || hashes.length === 0) {
                 console.warn("⚠️ No documents found for this account");
+                updateStatus("⚠️ No documents found for this account", "error");
                 setOwnedDocuments([]);
                 return;
             }
@@ -348,16 +360,23 @@ function App() {
                     hash,
                     metadata: metadataList[index],
                     timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
-                    fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index]}` : null,
+                    fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index]}` : null, // Use CID correctly
                 }))
             );
 
             console.log("✅ User documents successfully fetched", hashes);
+            updateStatus("✅ User documents successfully fetched", "success");
+
         } catch (error) {
             console.error("🚨 Error fetching owned documents:", error);
         }
     };
 
+    useEffect(() => {
+        if (activeTab === "transfer") {
+            fetchUserOwnedAssets();
+        }
+    }, [activeTab]);
 
     // Handle dropdown selection
     const handleSelectDocument = (selectedHash) => {
@@ -372,11 +391,11 @@ function App() {
                 setShowDropdown(false);
             }
         };
-
+    
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
-
+    
 
 
     // Transfer document ownership
@@ -598,30 +617,30 @@ function App() {
                     <div className="card fade-in">
                         <h3>Transfer Ownership</h3>
                         <div className="custom-dropdown">
-                            {/* Clickable dropdown header */}
-                            <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
-                                {hash ? ownedDocuments.find(doc => doc.hash === hash)?.metadata || "Select a document..." : "Select a document..."}
-                            </div>
+        {/* Clickable dropdown header */}
+        <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
+            {hash ? ownedDocuments.find(doc => doc.hash === hash)?.metadata || "Select a document..." : "Select a document..."}
+        </div>
 
-                            {/* Dropdown Menu */}
-                            {showDropdown && (
-                                <div className="dropdown-menu">
-                                    {ownedDocuments.map((doc) => (
-                                        <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
-                                            <div className="dropdown-content">
-                                                {doc.fileUrl && (
-                                                    <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
-                                                )}
-                                                <div className="dropdown-text">
-                                                    <p>{doc.metadata}</p>
-                                                    <p >{doc.timestamp}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+        {/* Dropdown Menu */}
+        {showDropdown && (
+            <div className="dropdown-menu">
+                {ownedDocuments.map((doc) => (
+                    <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
+                        <div className="dropdown-content">
+                            {doc.fileUrl && (
+                                <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
                             )}
+                            <div className="dropdown-text">
+                                <p>{doc.metadata}</p>
+                                <p >{doc.timestamp}</p>
+                            </div>
                         </div>
+                    </div>
+                ))}
+            </div>
+        )}
+    </div>
 
 
                         <input
