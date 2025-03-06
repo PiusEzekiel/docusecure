@@ -43,8 +43,37 @@ DocuSecure is an Ethereum-based DApp that enables users to register, verify, and
 ## 📌 Screenshots
 <span style="margin-top: 50px;">&nbsp;</span>
 <div style="display: inlign-flex; align-items: center">
-    <img src="/Screenshot6.png" width="750" height="300" alt="Image Description">
+    <img src="/demo/Screenshot 2025-03-06 205314.png" width="750" height="300" alt="Image Description">
 </div>
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/demo/Screenshot 2025-03-06 205613.png" width="750" height="300" alt="Image Description">
+</div>
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/demo/Screenshot 2025-03-06 205633.png" width="750" height="300" alt="Image Description">
+</div>
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/demo/Screenshot 2025-03-06 205705.png" width="750" height="300" alt="Image Description">
+</div>
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/demo/Screenshot 2025-03-06 205807.png" width="750" height="300" alt="Image Description">
+</div>
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/demo/Screenshot 2025-03-06 205902.png" width="750" height="300" alt="Image Description">
+</div>
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/demo/Screenshot 2025-03-06 210000.png" width="750" height="300" alt="Image Description">
+</div>
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/demo/Screenshot 2025-03-06 305517.png" width="750" height="300" alt="Image Description">
+</div>
+
 
 ---
 

@@ -39,6 +39,7 @@ function App() {
     const [ownedDocuments, setOwnedDocuments] = useState([]); // Stores user-owned documents
     const [showDropdown, setShowDropdown] = useState(false);
     const [loadingTransfer, setLoadingTransfer] = useState(false);
+        const [registeredFilePreviews, setRegisteredFilePreviews] = useState({});
     // Button State Management
     const [loadingAction, setLoadingAction] = useState({
         register: false,
@@ -62,7 +63,7 @@ function App() {
 
 
     // This state maps document hash to its preview URL.
-    // const [registeredFilePreviews, setRegisteredFilePreviews] = useState({});
+
 
     // **Auto-connect Wallet on Load**
     useEffect(() => {
@@ -246,14 +247,21 @@ function App() {
             console.log("Calling registerDocument with:", hash, metadata, cid);
     
             const tx = await contractWithSigner.registerDocument(hash, metadata, cid);
-            await tx.wait();
+            // await tx.wait();
+            // Wait for the transaction to be mined and assign to receipt
+        const receipt = await tx.wait(); // Make sure to declare it here
     
             setLoadingAction(prev => ({ ...prev, register: false }));
             setActionSuccess(prev => ({ ...prev, register: true }));
             setTimeout(() => setActionSuccess(prev => ({ ...prev, register: false })), 3000);
     
-            updateStatus("✅ Document registered successfully!", "success");
-            await fetchRegisteredDocuments();
+            if (receipt.status === 1) {
+                updateStatus("✅ Document registered successfully!", "success");
+                setShowInfoBox(true); // Ensure this is set to true
+                await fetchRegisteredDocuments();
+            } else {
+                throw new Error("Transaction failed");
+            }
         } catch (error) {
             setLoadingAction(prev => ({ ...prev, register: false }));
             setActionError(prev => ({ ...prev, register: true }));
@@ -262,8 +270,12 @@ function App() {
             updateStatus("❌ Registration failed: " + (error.reason || error.message), "error");
         }
     };
+    useEffect(() => {
+        if (showInfoBox) {
+            setTimeout(() => setShowInfoBox(false), 25000);
+        }
+    }, [showInfoBox]); // Only runs when showInfoBox changes
     
-
     // Verify document on blockchain
     const verifyDocument = async () => {
         if (!hash) {
@@ -477,7 +489,8 @@ function App() {
         fetchRegisteredDocuments();
     }, []);
 
-    const selectedDocument = ownedDocuments.find(doc => doc.hash === hash);
+    const selectedDocument = ownedDocuments.find(doc => doc.hash === hash) || {};
+
 
 
 
