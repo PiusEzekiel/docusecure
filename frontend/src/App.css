@@ -357,7 +357,7 @@ header h2 {
   width: 0%;
   height: 4px;
   background: #ff5500;
-  animation: loading-progress 2s linear infinite;
+  animation: loading-progress 3s linear infinite;
 }
 
 /* 🎬 Loading Animation */
@@ -369,8 +369,8 @@ header h2 {
 
 /* ✅ Success State */
 .action-button.success {
-  background: linear-gradient(135deg, #28a745, #00c6ff);
-  border-color: #00c6ff;
+  background: linear-gradient(135deg, #4a90e2, #007bff);
+  border: 2px solid #007bff;
   color: white;
 }
 
