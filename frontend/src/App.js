@@ -394,7 +394,7 @@ function App() {
     useEffect(() => {
 
         fetchRegisteredDocuments();
-    }, [fetchRegisteredDocuments]);
+    }, []);
 
 
 
