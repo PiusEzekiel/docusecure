@@ -361,7 +361,6 @@ function App() {
     };
 
 
-
     const fetchUserOwnedAssets = async () => {
         if (!window.ethereum) {
             console.error("❌ MetaMask not detected");
@@ -373,7 +372,7 @@ function App() {
         setTimeout(async () => {
             if (!account) {
                 console.error("❌ Wallet not connected");
-                updateStatus("❌ Connect Wallet", "error");
+                // updateStatus("❌ Connect Wallet", "error");
                 return;
             }
     
@@ -402,15 +401,14 @@ function App() {
                 );
     
                 console.log("✅ User documents successfully fetched", hashes);
-                updateStatus("✅ User documents successfully fetched", "success");
+                // updateStatus("✅ User documents successfully fetched", "success");
     
             } catch (error) {
                 console.error("🚨 Error fetching owned documents:", error);
             }
-        }, 3000); // ⏳ Wait for 3 seconds before executing
+        }, 1000); // ⏳ Wait for 3 seconds before executing
     };
     
-
     useEffect(() => {
         if (activeTab === "transfer") {
             fetchUserOwnedAssets();
