@@ -49,6 +49,7 @@ function App() {
     const [ipfsHash, setIpfsHash] = useState("");
     const [cid, setCid] = useState(""); // Change from ipfsHash to CID
     const [ownedDocuments, setOwnedDocuments] = useState([]); // Stores user-owned documents
+    const [showDropdown, setShowDropdown] = useState(false);
 
 
     // This state maps document hash to its preview URL.
@@ -590,15 +591,30 @@ function App() {
                 {activeTab === "transfer" && (
                     <div className="card fade-in">
                         <h3>Transfer Ownership</h3>
-                        <select value={hash} onChange={(e) => setHash(e.target.value)} className="input-field">
-                            <option value="">Select a document...</option>
-                            {ownedDocuments.map((doc) => (
-                                <option key={doc.hash} value={doc.hash}>
-                                    {doc.metadata} - {doc.timestamp}
-                                    {doc.fileUrl}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="custom-dropdown">
+    <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
+        {hash ? ownedDocuments.find(doc => doc.hash === hash)?.metadata || "Select a document..." : "Select a document..."}
+    </div>
+    
+    {showDropdown && (
+        <div className="dropdown-menu">
+            {ownedDocuments.map((doc) => (
+                <div key={doc.hash} className="dropdown-item" onClick={() => setHash(doc.hash)}>
+                    <div className="dropdown-content">
+                        {doc.fileUrl && (
+                            <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
+                        )}
+                        <div className="dropdown-text">
+                            <strong>{doc.metadata}</strong>
+                            <p className="dropdown-timestamp">{doc.timestamp}</p>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    )}
+</div>
+
 
                         <input
                             type="text"
