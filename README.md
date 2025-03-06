@@ -1,7 +1,8 @@
-
-# 📜 Blockchain Digital Asset Protection
+# 🐝 Blockchain Digital Asset Protection
 
 ## Ethereum-based Digital Asset Protection using Smart Contracts
+
+![Blockchain Security](https://example.com/blockchain_security.png)
 
 ### 🚀 Overview
 DocuSecure is an Ethereum-based DApp that enables users to register, verify, and transfer ownership of digital assets using smart contracts. By leveraging blockchain technology, DocuSecure ensures **immutability, security, and transparency** for digital asset ownership, helping users build trust in their digital transactions.
@@ -14,6 +15,8 @@ DocuSecure is an Ethereum-based DApp that enables users to register, verify, and
 - ✅ **Transfer Ownership** – Enable secure and seamless asset transfers  
 - ✅ **Audit and Monitor** – View historical transactions and asset records  
 - ✅ **User-Friendly UI** – A modern web application for easy interaction  
+
+![Features Overview](https://example.com/features_overview.png)
 
 ---
 
@@ -32,8 +35,16 @@ DocuSecure is an Ethereum-based DApp that enables users to register, verify, and
 ---
 
 ## 📌 Live Deployment
-- **Smart Contract Address:** `0x709Dd7BCcC41D4b3507921F747eeC5aAC04DC647`
+- **Smart Contract Address:** `0xE38FD9E94c969c066781C3C3D21f7B34a62dA13d`
 - **Frontend Hosted:** [https://docusecure-h8m0.onrender.com](https://docusecure-h8m0.onrender.com/)
+
+---
+
+## 📌 Screenshots
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/Screenshot6.png" width="750" height="300" alt="Image Description">
+</div>
 
 ---
 
@@ -116,4 +127,27 @@ Access the DApp at:
 http://localhost:3000
 ```
 
+---
+
+## 🔧 Troubleshooting
+- **Transaction failed?** Ensure you have enough ETH for gas fees.
+- **Smart contract not interacting?** Check if MetaMask is connected to the correct network.
+- **Frontend not loading?** Restart the frontend server and check your `.env` settings.
+
+---
+
+## 📚 License
+This project is licensed under the MIT License.
+
+---
+
+## 👥 Contributors
+- **[Pius Ezekiel](https://github.com/PiusEzekiel)**
+
+For contributions, feel free to fork the repository and submit a pull request.
+
+---
+
+
+Happy Building! 🌟
 
