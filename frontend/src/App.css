@@ -520,7 +520,8 @@ header h2 {
 .dropdown-menu {
     position: absolute;
     width: 100%;
-    background: #4a90e2;
+    background: rgba(0, 0, 0, 0.1); /* Modern semi-transparent black */
+    border: 1px solid #007bff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     overflow: hidden;
@@ -538,7 +539,7 @@ header h2 {
 }
 
 .dropdown-item:hover {
-  background: linear-gradient(135deg, #0056b3, #003c80);
+  background: linear-gradient(135deg, #4a90e2, #007bff);
 }
 
 .dropdown-content {
