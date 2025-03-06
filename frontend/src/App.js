@@ -322,11 +322,13 @@ function App() {
     const fetchUserOwnedAssets = async () => {
         if (!window.ethereum) {
             console.error("❌ MetaMask not detected");
+            setStatus("❌ Crypto Wallet Not Detected", "error");
             return;
         }
     
         if (!account) {
             console.error("❌ Wallet not connected");
+            setStatus("❌ Connect Wallet", "error");
             return;
         }
     
@@ -340,6 +342,7 @@ function App() {
     
             if (!Array.isArray(hashes) || hashes.length === 0) {
                 console.warn("⚠️ No documents found for this account");
+                updateStatus("⚠️ No documents found for this account", "error");
                 setOwnedDocuments([]);
                 return;
             }
@@ -354,6 +357,7 @@ function App() {
             );
     
             console.log("✅ User documents successfully fetched", hashes);
+            updateStatus("✅ User documents successfully fetched", "success");
     
         } catch (error) {
             console.error("🚨 Error fetching owned documents:", error);
@@ -591,6 +595,7 @@ function App() {
                             {ownedDocuments.map((doc) => (
                                 <option key={doc.hash} value={doc.hash}>
                                     {doc.metadata} - {doc.timestamp}
+                                    {doc.fileUrl}
                                 </option>
                             ))}
                         </select>
