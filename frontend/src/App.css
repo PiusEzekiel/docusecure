@@ -505,9 +505,6 @@ header h2 {
     max-height: 300px;
     overflow-y: auto;
     z-index: 10;
-
-    display: flex;
-    justify-content: space-around;
 }
 
 .dropdown-item {
