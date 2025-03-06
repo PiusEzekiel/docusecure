@@ -43,25 +43,25 @@ function App() {
     // This state maps document hash to its preview URL.
     // const [registeredFilePreviews, setRegisteredFilePreviews] = useState({});
 
-// **Auto-connect Wallet on Load**
-useEffect(() => {
-    const autoConnect = async () => {
-        if (window.ethereum) {
-            try {
-                const provider = new ethers.BrowserProvider(window.ethereum);
-                const signer = await provider.getSigner();
-                const address = await signer.getAddress();
-                setAccount(address);
+    // **Auto-connect Wallet on Load**
+    useEffect(() => {
+        const autoConnect = async () => {
+            if (window.ethereum) {
+                try {
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    const signer = await provider.getSigner();
+                    const address = await signer.getAddress();
+                    setAccount(address);
 
-                await fetchUserOwnedAssets(signer); // Fetch owned documents after connecting
-            } catch (error) {
-                console.error("Auto-connect failed:", error);
-                updateStatus("❌ Auto-connect failed", "error")
+                    await fetchUserOwnedAssets(signer); // Fetch owned documents after connecting
+                } catch (error) {
+                    console.error("Auto-connect failed:", error);
+                    updateStatus("❌ Auto-connect failed", "error")
+                }
             }
-        }
-    };
-    autoConnect();
-}, []);
+        };
+        autoConnect();
+    }, []);
 
     const getSigner = async () => {
         if (!window.ethereum) {
@@ -309,19 +309,19 @@ useEffect(() => {
             }
 
             let formattedDocs = hashes.map((hash, index) => ({
-            hash: hash.toString(),
-            owner: owners[index],
-            timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
-            metadata: metadataList[index].toString(),
-            fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null
-        }));
+                hash: hash.toString(),
+                owner: owners[index],
+                timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
+                metadata: metadataList[index].toString(),
+                fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null
+            }));
 
-        // ✅ Sort by latest timestamp first
-        formattedDocs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            // ✅ Sort by latest timestamp first
+            formattedDocs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-        console.log("Sorted documents:", formattedDocs);
-        setRegisteredDocuments(formattedDocs);
-        updateStatus("✅ Documents fetched successfully", "success");
+            console.log("Sorted documents:", formattedDocs);
+            setRegisteredDocuments(formattedDocs);
+            updateStatus("✅ Documents fetched successfully", "success");
 
         } catch (error) {
             console.error("Document fetch error:", error);
@@ -395,11 +395,11 @@ useEffect(() => {
                 setShowDropdown(false);
             }
         };
-    
+
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
-    
+
 
 
     // Transfer document ownership
@@ -436,6 +436,8 @@ useEffect(() => {
 
         fetchRegisteredDocuments();
     }, []);
+
+    const selectedDocument = ownedDocuments.find(doc => doc.hash === hash);
 
 
 
@@ -620,31 +622,41 @@ useEffect(() => {
                 {activeTab === "transfer" && (
                     <div className="card fade-in">
                         <h3>Transfer Ownership</h3>
-                        <div className="custom-dropdown">
-        {/* Clickable dropdown header */}
-        <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
-            {hash ? ownedDocuments.find(doc => doc.hash === hash)?.metadata || "Select a document..." : "Select a document..."}
-        </div>
+                        
 
-        {/* Dropdown Menu */}
-        {showDropdown && (
-            <div className="dropdown-menu">
-                {ownedDocuments.map((doc) => (
-                    <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
-                        <div className="dropdown-content">
-                            {doc.fileUrl && (
-                                <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
-                            )}
-                            <div className="dropdown-text">
-                                <p>{doc.metadata}</p>
-                                <p >{doc.timestamp}</p>
-                            </div>
+<div className="custom-dropdown">
+    {/* Dropdown Header */}
+    <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
+        {/* Show selected document preview */}
+        {selectedDocument?.fileUrl && (
+            <img src={selectedDocument.fileUrl} alt="Selected Preview" className="dropdown-header-image" />
+        )}
+        {/* Show metadata below the image */}
+        <p className="dropdown-header-text">
+            {selectedDocument?.metadata || "Select a document..."}
+        </p>
+    </div>
+
+    {/* Dropdown Menu */}
+    {showDropdown && (
+        <div className="dropdown-menu">
+            {ownedDocuments.map((doc) => (
+                <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
+                    <div className="dropdown-content">
+                        {doc.fileUrl && (
+                            <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
+                        )}
+                        <div className="dropdown-text">
+                            <p>{doc.metadata}</p>
+                            <p>{doc.timestamp}</p>
                         </div>
                     </div>
-                ))}
-            </div>
-        )}
-    </div>
+                </div>
+            ))}
+        </div>
+    )}
+</div>
+
 
 
                         <input
