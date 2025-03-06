@@ -352,7 +352,7 @@ function App() {
 
             console.log("Sorted documents:", formattedDocs);
             setRegisteredDocuments(formattedDocs);
-            updateStatus("✅ Documents fetched successfully", "success");
+            // updateStatus("✅ Documents fetched successfully", "success");
 
         } catch (error) {
             console.error("Document fetch error:", error);
