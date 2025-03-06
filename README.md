@@ -72,6 +72,10 @@ DocuSecure is an Ethereum-based DApp that enables users to register, verify, and
 <div style="display: inlign-flex; align-items: center">
     <img src="/demo/Screenshot 2025-03-06 305517.png" width="750" height="300" alt="Image Description">
 </div>
+<span style="margin-top: 50px;">&nbsp;</span>
+<div style="display: inlign-flex; align-items: center">
+    <img src="/demo/Screenshot 2025-03-06 211018.png" width="750" height="300" alt="Image Description">
+</div>
 
 
 ---
