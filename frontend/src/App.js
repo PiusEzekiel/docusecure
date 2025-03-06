@@ -52,6 +52,7 @@ useEffect(() => {
                 const signer = await provider.getSigner();
                 const address = await signer.getAddress();
                 setAccount(address);
+
                 await fetchUserOwnedAssets(signer); // Fetch owned documents after connecting
             } catch (error) {
                 console.error("Auto-connect failed:", error);
@@ -307,17 +308,20 @@ useEffect(() => {
                 throw new Error("Invalid data structure in response");
             }
 
-            const formattedDocs = hashes.map((hash, index) => ({
-                hash: hash.toString(),
-                owner: owners[index],
-                timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
-                metadata: metadataList[index].toString(),
-                fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null
-            }));
+            let formattedDocs = hashes.map((hash, index) => ({
+            hash: hash.toString(),
+            owner: owners[index],
+            timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
+            metadata: metadataList[index].toString(),
+            fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index].toString()}` : null
+        }));
 
-            console.log("Formatted documents:", formattedDocs);
-            setRegisteredDocuments(formattedDocs);
-            updateStatus("✅ Documents fetched successfully", "success");
+        // ✅ Sort by latest timestamp first
+        formattedDocs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        console.log("Sorted documents:", formattedDocs);
+        setRegisteredDocuments(formattedDocs);
+        updateStatus("✅ Documents fetched successfully", "success");
 
         } catch (error) {
             console.error("Document fetch error:", error);
@@ -560,7 +564,7 @@ useEffect(() => {
                                 {documentInfo.fileUrl && (
                                     <div className="file-preview">
                                         <img src={documentInfo.fileUrl} alt="Document file preview" />
-                                        <p>Document Preview</p>
+                                        <p>Preview</p>
                                     </div>
                                 )}
                             </div>

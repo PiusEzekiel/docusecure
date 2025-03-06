@@ -1,13 +1,12 @@
-/* Global Styles */
+/* =========================================
+   🌐 Global Styles
+========================================= */
 html, body {
   font-family: 'Poppins', sans-serif;
   background: linear-gradient(135deg, #0f1e41, #081734);
-  /* background-size: 300% 300%; Larger background for smooth animation */
-  /* animation: backgroundAnimation 25s ease-in-out infinite alternate; Animation */
   color: white;
   text-align: center;
   margin: 0;
-  /* flex: 1; */
   padding: 0;
   min-height: 100vh;
   display: flex;
@@ -15,12 +14,14 @@ html, body {
   overflow-x: hidden; /* Prevents horizontal scroll */
 }
 
-
 * {
   box-sizing: border-box; /* Prevents width issues due to padding */
 }
 
-/* Header Styling */
+
+/* =========================================
+   🔹 Header Styling
+========================================= */
 header {
   display: flex;
   justify-content: space-between; /* Push items to opposite ends */
@@ -28,10 +29,7 @@ header {
   width: 100%;
   max-width: 1000px; /* Prevents overflow */
   margin: 0 auto; /* Centers the header */ /* Adds space around */
-  padding-left: 30px;
-  padding-right: 30px;
-  padding-top: 20px;
-  padding-bottom: 30px; 
+  padding: 20px 30px; 
   background: rgba(0, 0, 0, 0.8); /* Modern semi-transparent black */
   color: white;
   border-bottom: 2px solid rgba(255, 255, 255, 0.2); /* Soft underline */
@@ -41,8 +39,6 @@ header {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  /* left: 0;
-  right: 0; */
   z-index: 1000; /* Ensures it stays above other content */
   border-bottom-right-radius: 50px;
   border-bottom-left-radius: 50px;
@@ -52,21 +48,40 @@ header {
 header h2 {
   font-size: 20px;
   font-weight: 600;
-  /* text-transform: uppercase; */
   margin: 0;
 }
 
 /* Wallet Section */
 .wallet-section {
-  /* display: flex; */
   align-items: center;
 }
 
-/* .status-message {
-  margin-right: 20px;
-} */
 
-/* 🔹 Status Message Styling */
+/* =========================================
+   📌 Wallet Section
+========================================= */
+/* Wallet Button */
+.connect-button {
+  background: linear-gradient(135deg, #4a90e2, #007bff);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
+}
+
+.connect-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 12px rgba(74, 144, 226, 0.5);
+}
+
+/* =========================================
+    Status Message Section
+========================================= */
 .status-message {
   text-align: center;
   font-size: 14px;
@@ -79,7 +94,6 @@ header h2 {
   top: 80px;
   left: 50%;
   transform: translateX(-50%);
-  /* animation: fadeIn 0.5s ease-in-out; */
   background: rgba(0, 0, 0, 0.8);
   border: 1px solid #007bff;
   box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
@@ -117,26 +131,11 @@ header h2 {
 }
 
 
-/* Wallet Button */
-.connect-button {
-  background: linear-gradient(135deg, #4a90e2, #007bff);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-  box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
-}
 
-.connect-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 6px 12px rgba(74, 144, 226, 0.5);
-}
 
-  /* 📜 App Container */
+/* =========================================
+    📜 App Container
+========================================= */
   .app-container {
     width: 90%;
     max-width: 950px;
@@ -148,7 +147,11 @@ header h2 {
     min-height: 100vh;
   }
   
-  /* 🔹 Tabs Section */
+ 
+  
+  /* =========================================
+   🏷️ Tabs Styling
+========================================= */
   .tabs {
     display: flex;
     justify-content: space-around;
@@ -183,7 +186,9 @@ header h2 {
     font-weight: bold;
   }
   
-  /* 🟦 Card Styles */
+/* =========================================
+   🟦 Card Styles
+========================================= */
   .card {
     background: rgba(255, 255, 255, 0.15);
     padding: 30px;
@@ -200,7 +205,10 @@ header h2 {
   
 
   
-  /* 📝 Input Fields */
+  /* =========================================
+   📝 Input Fields 
+========================================= */
+
   .input-field,
   .file-input {
     width: 95%;
@@ -268,7 +276,9 @@ header h2 {
   word-break: break-word;
 }
 
-/* 📤 Custom File Input */
+/* =========================================
+   📤 File Upload & Preview
+========================================= */
 .file-input-wrapper {
   position: relative;
   display: inline-block;
@@ -306,11 +316,12 @@ header h2 {
   box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.6);
 }
 
+/* =========================================
+   📤 Action Buttons
+========================================= */
 
-  /* Action Buttons */
 .action-button {
   background: linear-gradient(135deg, #4a90e2, #007bff);
-  /* background: linear-gradient(135deg, #28a745, #00c6ff); */
   color: white;
   border: none;
   padding: 12px 18px;
@@ -327,8 +338,10 @@ header h2 {
   transform: translateY(-2px);
   box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.6);
 }
-  
-/* Info Box (Success) */
+
+/* =========================================
+   📤 Info Box
+========================================= */
 .info-box {
   background: rgba(0, 0, 0, 0.1); /* Modern semi-transparent black */
   border: 1px solid #007bff;
@@ -385,8 +398,10 @@ header h2 {
   transition: transform 0.3s ease-in-out;
 }
 
+/* =========================================
+   View ALL Document List Styling
+========================================= */
 
-/* Document List Styling */
 .document-list {
   list-style: none;
   padding: 0;
@@ -450,7 +465,10 @@ header h2 {
   text-align: left;
 }
 
-  /* 📋 Copy Icon */
+
+/* =========================================
+   📋 Copy Icon
+========================================= */
   .copy-icon {
     cursor: pointer;
     margin-left: 10px;
@@ -465,7 +483,11 @@ header h2 {
     color: #007bff;
   }
 
-  /* Dropdown to Select Document */
+
+  
+/* =========================================
+   🎯 Dropdown Styling
+========================================= */
 .custom-dropdown {
     position: relative;
     display: inline-block;
@@ -544,8 +566,12 @@ header h2 {
     word-break: break-word;
 }
 
+
+/* =========================================
+   📌 Footer 
+========================================= */
   
-  /* 📌 Footer */
+  
   .footer {
     width: 100%;
     text-align: center;
