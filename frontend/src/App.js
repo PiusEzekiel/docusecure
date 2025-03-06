@@ -38,6 +38,27 @@ function App() {
     const [cid, setCid] = useState(""); // Change from ipfsHash to CID
     const [ownedDocuments, setOwnedDocuments] = useState([]); // Stores user-owned documents
     const [showDropdown, setShowDropdown] = useState(false);
+    const [loadingTransfer, setLoadingTransfer] = useState(false);
+    // Button State Management
+    const [loadingAction, setLoadingAction] = useState({
+        register: false,
+        verify: false,
+        transfer: false
+    });
+
+    const [actionSuccess, setActionSuccess] = useState({
+        register: false,
+        verify: false,
+        transfer: false
+    });
+
+    const [actionError, setActionError] = useState({
+        register: false,
+        verify: false,
+        transfer: false
+    });
+
+
 
 
     // This state maps document hash to its preview URL.
@@ -52,10 +73,8 @@ function App() {
                     const signer = await provider.getSigner();
                     const address = await signer.getAddress();
                     setAccount(address);
-                    // 🕒 Wait for 3 seconds before fetching owned assets
-                setTimeout(async () => {
-                    await fetchUserOwnedAssets(signer);
-                }, 3000);
+
+                    await fetchUserOwnedAssets(signer); // Fetch owned documents after connecting
                 } catch (error) {
                     console.error("Auto-connect failed:", error);
                     updateStatus("❌ Auto-connect failed", "error")
@@ -200,87 +219,97 @@ function App() {
     const registerDocument = async (hash) => {
         if (!window.ethereum) {
             updateStatus("❌ Crypto Wallet Not Detected", "error");
+            setActionError(prev => ({ ...prev, register: true }));
+            setTimeout(() => setActionError(prev => ({ ...prev, register: false })), 3000);
             return;
         }
         if (!cid) {
             updateStatus("❌ File not uploaded to IPFS yet", "error");
+            setActionError(prev => ({ ...prev, register: true }));
+            setTimeout(() => setActionError(prev => ({ ...prev, register: false })), 3000);
             return;
         }
         if (!metadata) {
             updateStatus("❌ Metadata missing", "error");
+            setActionError(prev => ({ ...prev, register: true }));
+            setTimeout(() => setActionError(prev => ({ ...prev, register: false })), 3000);
             return;
         }
-
+    
         try {
-            setLoadingRegister(true);
+            setLoadingAction(prev => ({ ...prev, register: true }));
             updateStatus("🔄 Uploading to blockchain...");
-
+    
             const signer = await getSigner();
             const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
-
+    
             console.log("Calling registerDocument with:", hash, metadata, cid);
-
+    
             const tx = await contractWithSigner.registerDocument(hash, metadata, cid);
-            const receipt = await tx.wait();
-
-            if (receipt.status === 1) {
-                updateStatus("✅ Document registered successfully!", "success");
-                setShowInfoBox(true);
-                await fetchRegisteredDocuments();
-            } else {
-                throw new Error("Transaction failed");
-            }
+            await tx.wait();
+    
+            setLoadingAction(prev => ({ ...prev, register: false }));
+            setActionSuccess(prev => ({ ...prev, register: true }));
+            setTimeout(() => setActionSuccess(prev => ({ ...prev, register: false })), 3000);
+    
+            updateStatus("✅ Document registered successfully!", "success");
+            await fetchRegisteredDocuments();
         } catch (error) {
-            console.error("Smart Contract Error:", error);
+            setLoadingAction(prev => ({ ...prev, register: false }));
+            setActionError(prev => ({ ...prev, register: true }));
+            setTimeout(() => setActionError(prev => ({ ...prev, register: false })), 3000);
+    
             updateStatus("❌ Registration failed: " + (error.reason || error.message), "error");
-        } finally {
-            setLoadingRegister(false);
         }
     };
+    
 
     // Verify document on blockchain
     const verifyDocument = async () => {
         if (!hash) {
             updateStatus("❌ Please enter a document hash", "error");
+            setActionError(prev => ({ ...prev, verify: true }));
+            setTimeout(() => setActionError(prev => ({ ...prev, verify: false })), 3000);
             return;
         }
-
-        const isValidHash = /^[a-fA-F0-9]{64}$/.test(hash);
-        if (!isValidHash) {
-            updateStatus("❌ Invalid document hash format", "error");
-            return;
-        }
-
+    
         try {
-            setLoadingVerify(true);
+            setLoadingAction(prev => ({ ...prev, verify: true }));
             updateStatus("🔄 Verifying document...");
-
+    
             const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-
-            // Updated: Fetch document details using CID instead of IPFS hash
             const [owner, timestamp, metadata, cid] = await contract.verifyDocument(hash);
-
+    
             if (!owner || owner === ethers.ZeroAddress) {
                 updateStatus("❌ Document not found", "error");
                 setDocumentInfo(null);
+                setActionError(prev => ({ ...prev, verify: true }));
+                setTimeout(() => setActionError(prev => ({ ...prev, verify: false })), 3000);
                 return;
             }
-
+    
             setDocumentInfo({
                 owner,
                 timestamp: new Date(Number(timestamp) * 1000).toLocaleString(),
                 metadata,
-                fileUrl: cid ? `https://ipfs.io/ipfs/${cid}` : null,  // Using CID instead of IPFS Hash
+                fileUrl: cid ? `https://ipfs.io/ipfs/${cid}` : null,
             });
-
+    
+            setLoadingAction(prev => ({ ...prev, verify: false }));
+            setActionSuccess(prev => ({ ...prev, verify: true }));
+            setTimeout(() => setActionSuccess(prev => ({ ...prev, verify: false })), 3000);
+    
             updateStatus("✅ Document verified successfully!", "success");
         } catch (error) {
+            setLoadingAction(prev => ({ ...prev, verify: false }));
+            setActionError(prev => ({ ...prev, verify: true }));
+            setTimeout(() => setActionError(prev => ({ ...prev, verify: false })), 3000);
+    
             updateStatus("❌ Verification failed: " + error.message, "error");
             setDocumentInfo(null);
-        } finally {
-            setLoadingVerify(false);
         }
     };
+    
 
 
 
@@ -339,44 +368,48 @@ function App() {
             updateStatus("❌ Crypto Wallet Not Detected", "error");
             return;
         }
-
-        if (!account) {
-            console.error("❌ Wallet not connected");
-            updateStatus("❌ Connect Wallet", "error");
-            return;
-        }
-
-        try {
-            const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
-            console.log(`🔍 Fetching documents owned by: ${account}`);
-
-            // Call the updated Solidity function
-            const [hashes, metadataList, timestamps, cids] = await contract.getDocumentsByOwner(account);
-            console.log("📜 Raw contract response:", { hashes, metadataList, timestamps, cids });
-
-            if (!Array.isArray(hashes) || hashes.length === 0) {
-                console.warn("⚠️ No documents found for this account");
-                updateStatus("⚠️ No documents found for this account", "error");
-                setOwnedDocuments([]);
+    
+        // 🕒 Wait for 3 seconds before fetching owned assets
+        setTimeout(async () => {
+            if (!account) {
+                console.error("❌ Wallet not connected");
+                updateStatus("❌ Connect Wallet", "error");
                 return;
             }
-
-            setOwnedDocuments(
-                hashes.map((hash, index) => ({
-                    hash,
-                    metadata: metadataList[index],
-                    timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
-                    fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index]}` : null, // Use CID correctly
-                }))
-            );
-
-            console.log("✅ User documents successfully fetched", hashes);
-            updateStatus("✅ User documents successfully fetched", "success");
-
-        } catch (error) {
-            console.error("🚨 Error fetching owned documents:", error);
-        }
+    
+            try {
+                const contract = new ethers.Contract(contractAddress, contractABI, readProvider);
+                console.log(`🔍 Fetching documents owned by: ${account}`);
+    
+                // Call the updated Solidity function
+                const [hashes, metadataList, timestamps, cids] = await contract.getDocumentsByOwner(account);
+                console.log("📜 Raw contract response:", { hashes, metadataList, timestamps, cids });
+    
+                if (!Array.isArray(hashes) || hashes.length === 0) {
+                    console.warn("⚠️ No documents found for this account");
+                    updateStatus("⚠️ No documents found for this account", "error");
+                    setOwnedDocuments([]);
+                    return;
+                }
+    
+                setOwnedDocuments(
+                    hashes.map((hash, index) => ({
+                        hash,
+                        metadata: metadataList[index],
+                        timestamp: new Date(Number(timestamps[index]) * 1000).toLocaleString(),
+                        fileUrl: cids[index] ? `https://ipfs.io/ipfs/${cids[index]}` : null, // Use CID correctly
+                    }))
+                );
+    
+                console.log("✅ User documents successfully fetched", hashes);
+                updateStatus("✅ User documents successfully fetched", "success");
+    
+            } catch (error) {
+                console.error("🚨 Error fetching owned documents:", error);
+            }
+        }, 3000); // ⏳ Wait for 3 seconds before executing
     };
+    
 
     useEffect(() => {
         if (activeTab === "transfer") {
@@ -408,30 +441,37 @@ function App() {
     const transferOwnership = async () => {
         if (!hash || !transferTo) {
             updateStatus("❌ Please select a document and enter the new owner address", "error");
+            setActionError(prev => ({ ...prev, transfer: true }));
+            setTimeout(() => setActionError(prev => ({ ...prev, transfer: false })), 3000);
             return;
         }
-
-        const owned = ownedDocuments.find((doc) => doc.hash === hash);
-        if (!owned) {
-            updateStatus("❌ You do not own this document!", "error");
-            return;
-        }
-
+    
         try {
+            setLoadingAction(prev => ({ ...prev, transfer: true }));
             updateStatus("🔄 Confirming transfer...");
+    
             const signer = await getSigner();
             const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
-
+    
             const tx = await contractWithSigner.transferOwnership(hash, transferTo);
             await tx.wait();
-
+    
+            setLoadingAction(prev => ({ ...prev, transfer: false }));
+            setActionSuccess(prev => ({ ...prev, transfer: true }));
+            setTimeout(() => setActionSuccess(prev => ({ ...prev, transfer: false })), 3000);
+    
             updateStatus("✅ Ownership transferred successfully!", "success");
             await fetchRegisteredDocuments();
-            await fetchUserOwnedAssets(); // Refresh user-owned documents
+            await fetchUserOwnedAssets();
         } catch (error) {
+            setLoadingAction(prev => ({ ...prev, transfer: false }));
+            setActionError(prev => ({ ...prev, transfer: true }));
+            setTimeout(() => setActionError(prev => ({ ...prev, transfer: false })), 3000);
+    
             updateStatus("❌ Transfer failed: " + error.message, "error");
         }
     };
+    
 
 
     useEffect(() => {
@@ -518,8 +558,12 @@ function App() {
                             onChange={(e) => setMetadata(e.target.value)}
                             className="input-field"
                         />
-                        <button className="action-button" onClick={hashDocument} disabled={loadingRegister}>
-                            {loadingRegister ? "Processing..." : "Register Document"}
+                        <button
+                            className={`action-button ${loadingAction.register ? "loading" : actionSuccess.register ? "success" : actionError.register ? "error" : ""}`}
+                            onClick={hashDocument}
+                            disabled={loadingAction.register}
+                        >
+                            {loadingAction.register ? "Processing..." : actionSuccess.register ? "✅ Registered!" : actionError.register ? "❌ Failed" : "Register Document"}
                         </button>
                         {showInfoBox && registeredDocuments.length > 0 && (
                             <div className="info-box fade-in">
@@ -556,8 +600,12 @@ function App() {
                             onChange={(e) => setHash(e.target.value)}
                             className="input-field"
                         />
-                        <button className="action-button" onClick={verifyDocument} disabled={loadingVerify}>
-                            {loadingVerify ? "Checking..." : "Verify Document"}
+                        <button
+                            className={`action-button ${loadingAction.verify ? "loading" : actionSuccess.verify ? "success" : actionError.verify ? "error" : ""}`}
+                            onClick={verifyDocument}
+                            disabled={loadingAction.verify}
+                        >
+                            {loadingAction.verify ? "Checking..." : actionSuccess.verify ? "✅ Verified!" : actionError.verify ? "❌ Failed" : "Verify Document"}
                         </button>
                         {documentInfo && (
                             <div className="info-box">
@@ -624,40 +672,40 @@ function App() {
                 {activeTab === "transfer" && (
                     <div className="card fade-in">
                         <h3>Transfer Ownership</h3>
-                        
 
-<div className="custom-dropdown">
-    {/* Dropdown Header */}
-    <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
-        {/* Show selected document preview */}
-        {selectedDocument?.fileUrl && (
-            <img src={selectedDocument.fileUrl} alt="Selected Preview" className="dropdown-header-image" />
-        )}
-        {/* Show metadata below the image */}
-        <p className="dropdown-header-text">
-            {selectedDocument?.metadata || "Select a document..."}
-        </p>
-    </div>
 
-    {/* Dropdown Menu */}
-    {showDropdown && (
-        <div className="dropdown-menu">
-            {ownedDocuments.map((doc) => (
-                <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
-                    <div className="dropdown-content">
-                        {doc.fileUrl && (
-                            <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
-                        )}
-                        <div className="dropdown-text">
-                            <p>{doc.metadata}</p>
-                            <p>{doc.timestamp}</p>
+                        <div className="custom-dropdown">
+                            {/* Dropdown Header */}
+                            <div className="dropdown-header" onClick={() => setShowDropdown(!showDropdown)}>
+                                {/* Show selected document preview */}
+                                {selectedDocument?.fileUrl && (
+                                    <img src={selectedDocument.fileUrl} alt="Selected Preview" className="dropdown-header-image" />
+                                )}
+                                {/* Show metadata below the image */}
+                                <p className="dropdown-header-text">
+                                    {selectedDocument?.metadata || "Select a document..."}
+                                </p>
+                            </div>
+
+                            {/* Dropdown Menu */}
+                            {showDropdown && (
+                                <div className="dropdown-menu">
+                                    {ownedDocuments.map((doc) => (
+                                        <div key={doc.hash} className="dropdown-item" onClick={() => handleSelectDocument(doc.hash)}>
+                                            <div className="dropdown-content">
+                                                {doc.fileUrl && (
+                                                    <img src={doc.fileUrl} alt="Document Preview" className="dropdown-image" />
+                                                )}
+                                                <div className="dropdown-text">
+                                                    <p>{doc.metadata}</p>
+                                                    <p>{doc.timestamp}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-    )}
-</div>
 
 
 
@@ -675,8 +723,12 @@ function App() {
                             onChange={(e) => setTransferTo(e.target.value)}
                             className="input-field"
                         />
-                        <button className="action-button" onClick={transferOwnership}>
-                            Transfer Ownership
+                        <button
+                            className={`action-button ${loadingAction.transfer ? "loading" : actionSuccess.transfer ? "success" : actionError.transfer ? "error" : ""}`}
+                            onClick={transferOwnership}
+                            disabled={loadingAction.transfer}
+                        >
+                            {loadingAction.transfer ? "Processing..." : actionSuccess.transfer ? "✅ Transferred!" : actionError.transfer ? "❌ Failed" : "Transfer Ownership"}
                         </button>
                     </div>
                 )}

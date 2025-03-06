@@ -317,26 +317,67 @@ header h2 {
 }
 
 /* =========================================
-   📤 Action Buttons
+   🚀 Action Button Styling (With Progress)
 ========================================= */
-
 .action-button {
   background: linear-gradient(135deg, #4a90e2, #007bff);
   color: white;
-  border: none;
+  border: 2px solid transparent;
   padding: 12px 18px;
   font-size: 16px;
   font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
   box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.4);
-  border: 1px solid #007bff;
+  position: relative;
+  overflow: hidden;
 }
 
 .action-button:hover {
   transform: translateY(-2px);
   box-shadow: 0px 4px 8px rgba(74, 144, 226, 0.6);
+}
+
+/* 🟡 Button in Loading State */
+.action-button.loading {
+  background: linear-gradient(135deg, #ffcc00, #ffaa00);
+  border-color: #ffaa00;
+  color: black;
+  cursor: wait;
+}
+
+/* 🔄 Loading Progress Bar */
+.action-button.loading::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 4px;
+  background: #ff5500;
+  animation: loading-progress 2s linear infinite;
+}
+
+/* 🎬 Loading Animation */
+@keyframes loading-progress {
+  0% { width: 0%; }
+  50% { width: 50%; }
+  100% { width: 100%; }
+}
+
+/* ✅ Success State */
+.action-button.success {
+  background: linear-gradient(135deg, #28a745, #00c6ff);
+  border-color: #00c6ff;
+  color: white;
+}
+
+/* ❌ Error State */
+.action-button.error {
+  background: linear-gradient(135deg, #dc3545, #ff0000);
+  border-color: #ff0000;
+  color: white;
 }
 
 /* =========================================
@@ -501,7 +542,7 @@ header h2 {
   flex-direction: column;  /* Stack items vertically */
   align-items: center;  /* Center items */
   gap: 5px;  /* Space between image and metadata */
-  /* padding: 12px 20px; */
+  padding-top: 10px;
   background: linear-gradient(135deg, #4a90e2, #007bff);
   color: white;
   font-size: 14px;
@@ -528,10 +569,11 @@ header h2 {
 
 /* 📝 Metadata Text */
 .dropdown-header-text {
-  font-size: 12px;
+  font-size: 14px;
   color: white;
-  margin-top: 5px;
+  /* margin-top: 5px; */
   text-align: center;
+  font-style: italic;
 }
 
 
