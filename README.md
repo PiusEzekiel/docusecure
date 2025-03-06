@@ -2,7 +2,7 @@
 
 ## Ethereum-based Digital Asset Protection using Smart Contracts
 
-![Blockchain Security](https://example.com/blockchain_security.png)
+
 
 ### 🚀 Overview
 DocuSecure is an Ethereum-based DApp that enables users to register, verify, and transfer ownership of digital assets using smart contracts. By leveraging blockchain technology, DocuSecure ensures **immutability, security, and transparency** for digital asset ownership, helping users build trust in their digital transactions.
@@ -16,7 +16,6 @@ DocuSecure is an Ethereum-based DApp that enables users to register, verify, and
 - ✅ **Audit and Monitor** – View historical transactions and asset records  
 - ✅ **User-Friendly UI** – A modern web application for easy interaction  
 
-![Features Overview](https://example.com/features_overview.png)
 
 ---
 
