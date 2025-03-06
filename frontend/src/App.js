@@ -551,14 +551,15 @@ function App() {
                                                 />
                                             </p>
                                             <p><b>Owner:</b> {doc.owner}</p>
-                                        </div>
-                                        <div>
                                             <p><b>Registered On:</b> {doc.timestamp}</p>
                                             <p><b>Metadata:</b> {doc.metadata || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            
                                             {doc.fileUrl && (
                                                 <div className="file-preview">
                                                     <img src={doc.fileUrl} alt="Document file preview" />
-                                                    <p>File preview</p>
+                                                    {/* <p>File preview</p> */}
                                                 </div>
                                             )}
                                         </div>
